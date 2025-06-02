@@ -5,36 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Dota 2 Таймер - Стиль Игры</title>
+    <title>Dota 2 Таймер - Gemini Советы v4</title>
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- DOTA 2 THEME STYLES --- */
+        /* --- DOTA 2 THEME STYLES V2.2 (WHITE ACCENTS) --- */
         :root {
-            --d2-bg-dark: #18181b; /* Очень темный фон, почти черный */
-            --d2-bg-panel: #22252a; /* Фон панелей, темный серо-синий */
-            --d2-bg-panel-light: #2e3238;
-            --d2-border-color: #4a505a; /* Цвет рамок */
-            --d2-border-highlight: #7a828e;
-            --d2-text-primary: #c5c5c5; /* Основной текст, светло-серый */
-            --d2-text-secondary: #8b8f98; /* Вторичный текст */
-            --d2-text-title: #e0b469; /* Золотистый для заголовков/акцентов */
-            --d2-accent-red: #c53630; /* Красный акцент Dota 2 */
-            --d2-accent-red-glow: rgba(255, 80, 70, 0.7);
-            --d2-accent-blue: #589ad2; /* Синий акцент (Radiant) */
-            --d2-accent-green: #70a843; /* Зеленый для позитивных действий */
-            --d2-accent-yellow: #f2d06b; /* Желтый для предупреждений */
-            --d2-font-title: 'Cinzel', serif;
-            --d2-font-body: 'Roboto Condensed', sans-serif;
-            --d2-button-bg: linear-gradient(180deg, #3a3f47 0%, #2c3036 100%);
-            --d2-button-border: #50555e;
-            --d2-button-hover-bg: linear-gradient(180deg, #4a4f57 0%, #3c4046 100%);
-            --d2-progress-bar-bg: #1a1c1f;
-            --d2-progress-bar-fill: var(--d2-accent-blue);
+            --d2-bg-dark: #0E1013; 
+            --d2-bg-panel: #1C1F26; 
+            --d2-bg-panel-light: #2A2E37; 
+            --d2-border-color: #3A4150; 
+            --d2-border-highlight: #58657A; 
+            
+            --d2-text-primary: #A0A8B0; 
+            --d2-text-secondary: #6C7886; 
+            --d2-text-title: #EAEAEA; 
+            --d2-text-error: #FF4C4C;
+
+            --d2-accent-dire: #DA362A; 
+            --d2-accent-dire-glow: rgba(218, 54, 42, 0.6);
+            --d2-accent-radiant: #67A6E0; 
+            --d2-accent-radiant-glow: rgba(103, 166, 224, 0.5);
+
+            --d2-accent-green: #A2CF55; 
+            --d2-accent-yellow: #F2D06B; 
+            --d2-accent-purple: #9A70E4; 
+
+            --d2-font-title: 'Cinzel', serif; 
+            --d2-font-body: 'Roboto Condensed', sans-serif; 
+
+            --d2-button-bg: linear-gradient(180deg, #313740 0%, #252930 100%);
+            --d2-button-border: #404854;
+            --d2-button-hover-bg: linear-gradient(180deg, #3c424b 0%, #2d3138 100%);
+            --d2-button-text: var(--d2-text-primary);
+
+            --d2-progress-bar-bg: #101215;
+            --d2-progress-bar-fill: var(--d2-accent-radiant);
             --d2-progress-bar-warning-fill: var(--d2-accent-yellow);
-            --d2-progress-bar-event-now-fill: var(--d2-accent-red);
+            --d2-progress-bar-event-now-fill: var(--d2-accent-dire);
         }
 
         html, body {
@@ -58,7 +68,7 @@
 
         .main-container {
             display: flex; flex-direction: row; width: 100%;
-            max-width: 1400px; /* Немного шире для нового стиля */
+            max-width: 1400px; 
             gap: 20px; flex-grow: 1; min-height: 0;
         }
         .left-panel, .right-panel {
@@ -66,7 +76,7 @@
             background-color: var(--d2-bg-panel);
             border: 1px solid var(--d2-border-color);
             border-radius: 6px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3), inset 0 0 5px rgba(0,0,0,0.2);
+            box-shadow: 0 0 20px rgba(0,0,0,0.4), inset 0 0 8px rgba(0,0,0,0.3);
         }
         .left-panel { flex: 2.5; align-items: center; padding: 15px; }
         .right-panel {
@@ -78,82 +88,105 @@
         .right-panel::-webkit-scrollbar-track { background: var(--d2-bg-panel-light); }
         .right-panel::-webkit-scrollbar-thumb { background-color: var(--d2-border-highlight); border-radius: 3px; }
         
-        #timerDisplay {
+        #timerDisplay { 
             font-family: var(--d2-font-title);
-            font-size: 4em; /* Крупнее */
-            margin-bottom: 15px; color: var(--d2-text-title);
+            font-size: 4.2em; 
+            margin-bottom: 15px; color: var(--d2-text-title); 
             font-weight: 700; 
-            text-shadow: 0 0 8px var(--d2-text-title), 0 0 12px var(--d2-text-title);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.2), 0 0 12px rgba(255, 255, 255, 0.1), 0 1px 2px #000; 
             text-align: center;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
         .controls-column {
-            display: flex; flex-direction: column; align-items: stretch; /* Растянуть группы кнопок */
-            gap: 10px; margin-bottom: 15px; width: 100%; max-width: 500px;
+            display: flex; flex-direction: column; align-items: stretch; 
+            gap: 12px; margin-bottom: 15px; width: 100%; max-width: 520px;
         }
         .control-group {
             display: flex; align-items: center; gap: 10px;
             background-color: var(--d2-bg-panel-light);
-            padding: 10px; border-radius: 4px;
+            padding: 12px; border-radius: 4px;
             flex-wrap: wrap; justify-content: center;
             border: 1px solid var(--d2-border-color);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.4);
         }
-        .control-group input[type="number"] {
-            width: 50px; padding: 8px; font-size: 1em; text-align: center;
+        .control-group input[type="number"], .control-group input[type="text"], .control-group select {
+            padding: 9px; font-size: 1em; text-align: center;
             border: 1px solid var(--d2-border-highlight); background-color: var(--d2-bg-dark); 
             color: var(--d2-text-primary);
-            border-radius: 3px; -moz-appearance: textfield;
+            border-radius: 3px; 
             font-family: var(--d2-font-body);
+            box-sizing: border-box;
         }
+        .control-group input[type="number"] { width: 55px; -moz-appearance: textfield; }
+        .control-group input[type="text"] { text-align: left; flex-grow: 1; min-width: 100px;}
+        .control-group select { text-align: left; appearance: none; -webkit-appearance: none; -moz-appearance: none; 
+            background-image: url("data:image/svg+xml;utf8,<svg fill='%23A0A8B0' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat; background-position: right 8px center; padding-right: 30px;
+        }
+
         .control-group input[type="number"]::-webkit-outer-spin-button,
         .control-group input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none; margin: 0;
         }
-        .control-group span { font-size: 1.2em; color: var(--d2-text-title); }
+        .control-group span { font-size: 1.3em; color: var(--d2-text-title); font-weight: bold;} 
         .control-group button {
             font-family: var(--d2-font-body);
             font-weight: bold;
-            font-size: 0.9em; padding: 8px 15px; cursor: pointer;
+            font-size: 0.95em; padding: 9px 16px; cursor: pointer;
             border: 1px solid var(--d2-button-border);
-            border-top-color: #60656e; /* Светлее верхняя грань для объема */
-            border-radius: 4px; color: var(--d2-text-primary);
+            border-top-color: #68707e; 
+            border-radius: 4px; color: var(--d2-button-text);
             background: var(--d2-button-bg);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.5);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.6);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07);
             transition: all 0.15s ease-out;
-            flex-grow: 1; /* Кнопки занимают доступное место в группе */
+            flex-grow: 1; 
         }
         .control-group button:hover {
             background: var(--d2-button-hover-bg);
             border-color: var(--d2-border-highlight);
             color: #fff;
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+            box-shadow: 0 3px 5px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1);
         }
         .control-group button:active {
             transform: translateY(0px);
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.6);
         }
-        #lockScreenToggle { background: linear-gradient(180deg, #4a505a 0%, #3c4046 100%); }
-        #lockScreenToggle:hover { background: linear-gradient(180deg, #5a606a 0%, #4c5056 100%); }
-        .time-sync-controls button { background: linear-gradient(180deg, var(--d2-accent-green) 0%, color-mix(in srgb, var(--d2-accent-green) 70%, black) 100%); }
-        .time-sync-controls button:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--d2-accent-green) 120%, white) 0%, var(--d2-accent-green) 100%);}
-        .notification-controls button { background: linear-gradient(180deg, var(--d2-accent-yellow) 0%, color-mix(in srgb, var(--d2-accent-yellow) 70%, black) 100%); color: #33280c; }
-        .notification-controls button:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--d2-accent-yellow) 120%, white) 0%, var(--d2-accent-yellow) 100%);}
-        .gemini-controls button { background: linear-gradient(180deg, #7b1fa2 0%, #5a1879 100%); }
-        .gemini-controls button:hover { background: linear-gradient(180deg, #8e24aa 0%, #6a1b9a 100%); }
+        
+        .main-controls button, #lockScreenToggle { 
+            background: linear-gradient(180deg, var(--d2-accent-radiant) 0%, color-mix(in srgb, var(--d2-accent-radiant) 60%, black) 100%);
+            border-color: color-mix(in srgb, var(--d2-accent-radiant) 70%, black);
+            color: #fff;
+        }
+        .main-controls button:hover, #lockScreenToggle:hover { 
+            background: linear-gradient(180deg, color-mix(in srgb, var(--d2-accent-radiant) 120%, #fff) 0%, var(--d2-accent-radiant) 100%);
+            border-color: var(--d2-accent-radiant);
+        }
+        
+        .time-sync-controls button { background: linear-gradient(180deg, var(--d2-accent-green) 0%, color-mix(in srgb, var(--d2-accent-green) 60%, black) 100%); }
+        .time-sync-controls button:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--d2-accent-green) 120%, #fff) 0%, var(--d2-accent-green) 100%);}
+        
+        .notification-controls button { background: linear-gradient(180deg, var(--d2-accent-yellow) 0%, color-mix(in srgb, var(--d2-accent-yellow) 60%, black) 100%); color: #40320a; }
+        .notification-controls button:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--d2-accent-yellow) 120%, #fff) 0%, var(--d2-accent-yellow) 100%);}
+        
+        .gemini-controls { flex-direction: column; align-items: stretch !important; } 
+        .gemini-controls .gemini-options { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .gemini-controls .gemini-options select, .gemini-controls .gemini-options input { flex: 1; min-width: 120px; }
+        .gemini-controls button { background: linear-gradient(180deg, var(--d2-accent-purple) 0%, color-mix(in srgb, var(--d2-accent-purple) 60%, black) 100%); width: 100%; }
+        .gemini-controls button:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--d2-accent-purple) 120%, #fff) 0%, var(--d2-accent-purple) 100%); }
+
 
         .section-title {
             font-family: var(--d2-font-title);
-            text-align: center; color: var(--d2-text-title);
-            font-size: 1.6em; margin-bottom: 10px;
+            text-align: center; color: var(--d2-text-title); 
+            font-size: 1.7em; margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px var(--d2-text-title);
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.15), 0 0 2px #000; 
         }
         #upcomingEvents { width:100%; max-width: 600px; overflow-y: auto; flex-shrink: 1; 
-            padding-right: 5px; /* Место для скроллбара */
+            padding-right: 5px; 
             scrollbar-width: thin;
             scrollbar-color: var(--d2-border-highlight) var(--d2-bg-panel);
         }
@@ -166,94 +199,109 @@
         }
         #upcomingEvents li, #dynamicRecentEventsList li {
             background-color: var(--d2-bg-panel-light); 
-            padding: 10px 12px; margin-bottom: 8px;
-            border-radius: 4px; font-size: 1em; 
+            padding: 12px 15px; margin-bottom: 10px;
+            border-radius: 4px; font-size: 1.05em; 
             border: 1px solid var(--d2-border-color);
-            border-left: 4px solid var(--d2-accent-blue);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            border-left: 5px solid var(--d2-accent-radiant); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
             transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
         }
         #upcomingEvents li:hover, #dynamicRecentEventsList li:hover {
-            transform: translateX(3px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transform: translateX(4px) scale(1.01);
+            box-shadow: 0 3px 7px rgba(0,0,0,0.35);
+            border-left-color: color-mix(in srgb, var(--d2-accent-radiant) 80%, white);
         }
+        .event-content { flex-grow: 1; } 
+        .event-priority-marks {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-left: 10px;
+            flex-shrink: 0; 
+            color: var(--d2-accent-dire); 
+        }
+
+
         #pastEventsLog li { 
             background-color: transparent;
             border: none;
-            border-bottom: 1px dashed var(--d2-border-color);
-            padding: 6px 0; 
-            font-size: 0.9em; 
+            border-bottom: 1px solid color-mix(in srgb, var(--d2-border-color) 50%, transparent);
+            padding: 8px 0; 
+            font-size: 0.95em; 
             color: var(--d2-text-secondary);
         }
         #pastEventsLog li:last-child { border-bottom: none; }
 
         #upcomingEvents li .event-details {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
-        .event-name { font-weight: bold; color: var(--d2-text-primary); }
+        .event-name { font-weight: bold; color: var(--d2-text-primary); font-size: 1.05em; }
         .event-time, .log-time { color: var(--d2-text-secondary); font-size:0.9em; }
+        
         .progress-bar-container {
-            height: 12px; background-color: var(--d2-progress-bar-bg); border-radius: 6px;
-            overflow: hidden; margin-top: 6px;
-            border: 1px solid #111;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+            height: 14px; background-color: var(--d2-progress-bar-bg); border-radius: 7px;
+            overflow: hidden; margin-top: 8px;
+            border: 1px solid #0a0b0d;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
         }
         .progress-bar {
             height: 100%; background-color: var(--d2-progress-bar-fill); width: 0%;
             transition: width 0.5s linear;
-            box-shadow: inset 0 -1px 1px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1);
-            border-radius: 5px;
+            box-shadow: inset 0 -1px 2px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.15);
+            border-radius: 6px;
         }
         .alert-warning { border-left-color: var(--d2-accent-yellow) !important; }
         .alert-warning .progress-bar { background-color: var(--d2-progress-bar-warning-fill) !important; }
         .alert-event-now {
-            border-left-color: var(--d2-accent-red) !important;
-            animation: pulse-border 0.8s infinite alternate;
+            border-left-color: var(--d2-accent-dire) !important;
+            animation: pulse-border-d2 0.8s infinite alternate;
         }
         .alert-event-now .progress-bar { background-color: var(--d2-progress-bar-event-now-fill) !important; }
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 5px var(--d2-accent-red-glow), 0 1px 2px rgba(0,0,0,0.2); }
-            100% { box-shadow: 0 0 10px var(--d2-accent-red-glow), 0 0 15px var(--d2-accent-red-glow), 0 1px 2px rgba(0,0,0,0.2); }
+        @keyframes pulse-border-d2 {
+            0% { box-shadow: 0 0 6px var(--d2-accent-dire-glow), 0 2px 4px rgba(0,0,0,0.25); border-left-color: var(--d2-accent-dire) !important;}
+            100% { box-shadow: 0 0 12px var(--d2-accent-dire-glow), 0 0 18px var(--d2-accent-dire-glow), 0 2px 4px rgba(0,0,0,0.25); border-left-color: color-mix(in srgb, var(--d2-accent-dire) 70%, #fff ) !important;}
         }
         
         .status-messages {
-            font-size: 0.85em; color: var(--d2-text-secondary); margin-top: 6px;
-            text-align: center; min-height: 1.2em; width: 100%;
-            padding: 5px;
-            background-color: rgba(0,0,0,0.1);
+            font-size: 0.9em; color: var(--d2-text-secondary); margin-top: 8px;
+            text-align: center; min-height: 1.3em; width: 100%;
+            padding: 6px;
+            background-color: rgba(0,0,0,0.15);
             border-radius: 3px;
         }
         #dynamicRecentEventsContainer {
             display: none; 
-            width: 100%; max-width: 600px; /* Соответствует upcomingEvents */
-            margin-top: 15px; padding: 0; /* Убираем внутренний padding, т.к. li его имеют */
+            width: 100%; max-width: 600px; 
+            margin-top: 15px; padding: 12px; 
             border-radius: 4px; 
             overflow-y: auto; flex-shrink: 0; 
             border: 1px solid var(--d2-border-color);
             background-color: var(--d2-bg-panel);
-            padding: 10px;
         }
-        #dynamicRecentEventsContainer .section-title { font-size: 1.2em; margin-bottom: 8px; }
+        #dynamicRecentEventsContainer .section-title { font-size: 1.3em; margin-bottom: 10px; }
         #dynamicRecentEventsList li {
-            border-left-color: #ff9800; /* Оранжевый для недавних */
+            border-left-color: #E8740C; /* Dota 2 оранжевый */
         }
         #dynamicRecentEventsList .event-name { font-weight: normal; }
         #dynamicRecentEventsList .event-meta { font-size: 0.9em; color: var(--d2-text-secondary); }
-        #dynamicRecentEventsList .event-timeout { font-size: 0.85em; color: #888; margin-left: 8px;}
+        #dynamicRecentEventsList .event-timeout { font-size: 0.85em; color: #777; margin-left: 8px;}
         
         .gemini-output {
-            margin-top: 15px; padding: 12px; 
+            margin-top: 15px; padding: 15px; 
             background-color: var(--d2-bg-panel-light); 
-            border-radius: 4px; min-height: 3.5em; 
+            border-radius: 4px; min-height: 4em; 
             text-align: left;
             border: 1px solid var(--d2-border-color);
-            border-left: 4px solid var(--gemini-button-bg);
+            border-left: 5px solid var(--d2-accent-purple);
             color: var(--d2-text-primary);
-            line-height: 1.6;
+            line-height: 1.65;
             width: 100%; max-width: 564px; 
             box-sizing: border-box;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+            white-space: pre-wrap; 
         }
 
         /* --- АДАПТАЦИЯ (ОБЫЧНЫЙ РЕЖИМ) --- */
@@ -263,7 +311,7 @@
             .left-panel, .right-panel { flex-basis: auto; width: 100%; padding: 12px; }
             .right-panel { max-height: 35vh; }
             #dynamicRecentEventsContainer { display: none !important; } 
-            #timerDisplay { font-size: 3em; }
+            #timerDisplay { font-size: 3.5em; }
         }
         @media (max-height: 600px) and (orientation: landscape) and (max-width: 950px) { 
             .app-wrapper { padding: 8px; }
@@ -271,11 +319,11 @@
             .main-container { gap: 10px; }
             .left-panel { flex: 2.8; padding:10px; }
             .right-panel { flex: 2; font-size: 0.85em; padding: 10px; }
-            #timerDisplay { font-size: 2.5em; }
-            .control-group button { font-size: 0.9em; padding: 6px 10px; }
-            .control-group input[type="number"] { width: 40px; padding: 6px; font-size: 0.9em;}
-            .section-title { font-size: 1.3em; }
-            #upcomingEvents li, #dynamicRecentEventsList li { padding: 8px 10px; font-size: 0.95em; }
+            #timerDisplay { font-size: 2.8em; }
+            .control-group button { font-size: 0.9em; padding: 7px 12px; }
+            .control-group input[type="number"] { width: 40px; padding: 7px; font-size: 0.9em;}
+            .section-title { font-size: 1.4em; }
+            #upcomingEvents li, #dynamicRecentEventsList li { padding: 9px 11px; font-size: 0.95em; }
             #dynamicRecentEventsContainer { display: block; order: 3; margin-top: 12px; }
             .right-panel { max-height: calc(100vh - 25px); }
         }
@@ -286,12 +334,15 @@
             #dynamicRecentEventsContainer { display: none; } 
         }
 
-        /* --- LOCKSCREEN РЕЖИМ --- */
-        body.horizontal-lockscreen-mode { font-size: 16px; background-color: #000; }
+        /* --- LOCKSCREEN РЕЖИМ (DOTA 2 THEME V2.2 WHITE ACCENTS) --- */
+        body.horizontal-lockscreen-mode { 
+            font-size: 16px; 
+            background: #0A0C0F url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill-opacity="0.02" fill="%233A4150"><rect x="50" width="50" height="50"/><rect y="50" width="50" height="50"/></g></svg>');
+        }
         body.horizontal-lockscreen-mode .app-wrapper { padding: 0; overflow: hidden; }
         body.horizontal-lockscreen-mode .main-container {
             flex-direction: column; height: 100%; width: 100%;
-            padding: 1.5vh 2.5vw; gap: 1vh; 
+            padding: 1vh 2vw; gap: 0.5vh; 
             justify-content: space-between; box-sizing: border-box;
         }
         body.horizontal-lockscreen-mode .controls-column,
@@ -306,20 +357,57 @@
         body.horizontal-lockscreen-mode .left-panel {
             flex: 1; width: 100%; padding:0; border:none; box-shadow:none; background:transparent;
             justify-content: flex-start; align-items: center;
-            overflow: hidden; gap: 1.5vh; 
+            overflow: hidden; gap: 1vh; 
         }
-        body.horizontal-lockscreen-mode #timerDisplay {
-            font-size: min(8vh, 9vw); 
-            line-height: 1; margin-bottom: 1vh; 
-            flex-shrink: 0; 
-            color: var(--d2-text-title);
-            text-shadow: 0 0 10px var(--d2-text-title), 0 0 20px var(--d2-text-title);
+        
+        .lockscreen-top-info { 
+            display: flex;
+            width: 100%;
+            align-items: flex-start; 
+            gap: 2vw;
+            margin-bottom: 1vh; 
+            max-height: 15vh; 
+            flex-shrink: 0;
         }
+
+        body.horizontal-lockscreen-mode #timerDisplay { 
+            font-size: min(7vh, 8vw); 
+            line-height: 1; 
+            color: var(--d2-text-title); 
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.2), 0 0 12px rgba(255, 255, 255, 0.1), 0 1px 2px #000;
+            text-align: left; 
+            margin-bottom: 0; 
+            flex-basis: auto; 
+            flex-shrink: 0;
+            margin-right: 1vw; 
+        }
+        #geminiAdviceLockScreen { 
+            display: none; 
+            flex-grow: 1; 
+            font-size: min(2.2vh, 1.9vw); 
+            color: var(--d2-text-primary);
+            background-color: rgba(20, 22, 25, 0.8); 
+            padding: 1vh 1.5vw;
+            border-radius: 4px;
+            border: 1px solid var(--d2-border-color);
+            max-height: 100%; 
+            overflow: hidden; 
+            line-height: 1.3;
+            text-overflow: ellipsis; 
+             display: -webkit-box;
+            -webkit-line-clamp: 4; 
+            -webkit-box-orient: vertical;
+        }
+         body.horizontal-lockscreen-mode #geminiAdviceLockScreen {
+            display: block !important; 
+        }
+
+
         body.horizontal-lockscreen-mode #upcomingEvents {
             width: 100%; max-width: none; flex-grow: 1;
-            overflow: hidden; /* Убираем скролл, элементы должны помещаться */
+            overflow: hidden; 
             display: flex; flex-direction: column; justify-content: space-around;
-            max-height: 48vh; 
+            max-height: 42vh; 
             padding:0; border:none; box-shadow:none; background:transparent;
         }
         body.horizontal-lockscreen-mode #upcomingEvents ul {
@@ -327,46 +415,64 @@
             justify-content: space-around; 
         }
         body.horizontal-lockscreen-mode #upcomingEvents li {
-            padding: 1.5vh 2vw; font-size: min(3.5vh, 3.3vw); 
-            border-left-width: 6px; flex-grow: 1; margin-bottom: 1.2vh; 
-            display: flex; flex-direction: column; justify-content: center;
-            background-color: rgba(30,30,30,0.85); /* Полупрозрачный фон */
-            border: 1px solid rgba(70,70,80,0.7);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            padding: 1.5vh 2.5vw; font-size: min(3.5vh, 3.3vw); 
+            border-left-width: 6px; margin-bottom: 1.2vh; 
+            display: flex; flex-direction: row; 
+            justify-content: space-between; 
+            align-items: center;
+            background-color: rgba(28, 31, 38, 0.92); 
+            border: 1px solid var(--d2-border-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 0 2px rgba(0,0,0,0.3);
+            border-radius: 5px;
         }
+        body.horizontal-lockscreen-mode #upcomingEvents li .event-content { flex-grow: 1; display: flex; flex-direction: column; }
+        body.horizontal-lockscreen-mode #upcomingEvents li .event-priority-marks {
+            font-size: 1.1em; 
+            font-weight: bold;
+            color: var(--d2-accent-dire);
+            margin-left: 1.5vw;
+            flex-shrink: 0;
+        }
+
+        body.horizontal-lockscreen-mode #upcomingEvents li.alert-warning { border-left-color: var(--d2-accent-yellow) !important; }
+        body.horizontal-lockscreen-mode #upcomingEvents li.alert-event-now { border-left-color: var(--d2-accent-dire) !important; }
+
+
         body.horizontal-lockscreen-mode #upcomingEvents li:last-child { margin-bottom: 0; }
         body.horizontal-lockscreen-mode #upcomingEvents li .event-details {
-             flex-direction: column; align-items: flex-start; gap: 0.5vh;
+             flex-direction: column; align-items: flex-start; gap: 0.4vh;
         }
-        body.horizontal-lockscreen-mode #upcomingEvents li .event-name { font-size: 1em; color: #e5e5e5; }
-        body.horizontal-lockscreen-mode #upcomingEvents li .event-time { font-size: 0.75em; color: #a0a0a0; }
+        body.horizontal-lockscreen-mode #upcomingEvents li .event-name { font-size: 1em; color: var(--d2-text-primary); font-weight:700; }
+        body.horizontal-lockscreen-mode #upcomingEvents li .event-time { font-size: 0.75em; color: var(--d2-text-secondary); }
         body.horizontal-lockscreen-mode #upcomingEvents li .progress-bar-container {
             height: 2.5vh; border-radius: 1.25vh; margin-top: 1.2vh;
-            background-color: #222;
+            background-color: #101215;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsContainer {
             display: block !important; width: 100%;
-            padding: 1.5vh 2vw; 
-            font-size: min(3.6vh, 3.3vw); 
-            background-color: rgba(20,20,20,0.85); 
-            border-top: 2px solid rgba(70,70,80,0.7);
-            flex-shrink: 0; max-height: 36vh; 
+            padding: 2vh 2.5vw; 
+            font-size: min(4vh, 3.8vw); 
+            background-color: rgba(14, 16, 19, 0.92); 
+            border-top: 2px solid var(--d2-border-color);
+            flex-shrink: 0; max-height: 38vh; 
             overflow-y: auto;
             border-radius:0; box-shadow:none;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsContainer .section-title {
             display: block; font-size: 0.7em; 
-            margin-bottom: 1vh; color: #b0b0b0; text-transform: uppercase;
+            margin-bottom: 1vh; color: var(--d2-text-secondary); text-transform: uppercase;
+            font-weight: bold;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsList li {
-            padding: 1.2vh 1.5vw; 
-            font-size: 1em; background-color: rgba(40,40,40,0.8); margin-bottom: 1vh;
-            border-left-width: 5px;
-            border: 1px solid rgba(60,60,70,0.6);
+            padding: 1.8vh 2vw; 
+            font-size: 1em; background-color: rgba(34, 37, 42, 0.9); margin-bottom: 1.2vh;
+            border-left-width: 6px;
+            border: 1px solid var(--d2-border-color);
+            border-radius: 4px;
         }
-        body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-name { color: #d5d5d5;}
+        body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-name { color: var(--d2-text-primary);}
         body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-meta {
-            font-size: 0.8em; color: #999;
+            font-size: 0.8em; color: var(--d2-text-secondary);
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-timeout { 
             display: inline; font-size: 0.75em; color: #777;
@@ -374,23 +480,24 @@
         
         #exitLockScreenButton { 
             display: none; position: fixed; 
-            top: 15px; right: 15px; z-index: 20000; 
+            top: 2vh; right: 2vw; z-index: 20000; 
             padding: 0; 
-            background-color: var(--exit-button-bg); color: white; 
-            border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; 
-            font-size: 1.6em; 
-            width: 50px; height: 50px;
-            line-height: 48px; text-align: center; /* Скорректировано для центровки */
-            box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            background-color: var(--d2-accent-dire); color: white; 
+            border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; 
+            font-size: 1.8em; 
+            width: min(7vh, 7vw); height: min(7vh, 7vw);
+            line-height: min(6.5vh, 6.5vw); text-align: center; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.7), 0 0 10px var(--d2-accent-dire-glow);
             cursor: pointer;
             user-select: none; 
-            opacity: 0.8;
-            transition: opacity 0.2s, transform 0.2s;
+            opacity: 0.85;
+            transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
         }
         #exitLockScreenButton:hover {
-            background-color: var(--exit-button-hover-bg);
+            background-color: color-mix(in srgb, var(--d2-accent-dire) 80%, #fff);
             opacity: 1;
             transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8), 0 0 15px var(--d2-accent-dire-glow);
         }
     </style>
 </head>
@@ -398,7 +505,10 @@
     <div class="app-wrapper">
         <div class="main-container">
             <div class="left-panel">
-                <div id="timerDisplay">00:00</div>
+                 <div class="lockscreen-top-info"> 
+                    <div id="timerDisplay">00:00</div> 
+                    <div id="geminiAdviceLockScreen"></div> </div>
+
                 <div class="controls-column">
                     <div class="control-group time-sync-controls">
                         <input type="number" id="syncMinutes" placeholder="MM" min="0">
@@ -415,6 +525,22 @@
                         <button id="toggleNotificationsButton">Включить Уведомления</button>
                     </div>
                     <div class="control-group gemini-controls"> 
+                        <div class="gemini-options">
+                            <select id="geminiSideSelect">
+                                <option value="Любая">Сторона: Любая</option>
+                                <option value="Radiant">Radiant</option>
+                                <option value="Dire">Dire</option>
+                            </select>
+                            <select id="geminiPositionSelect">
+                                <option value="Любая">Позиция: Любая</option>
+                                <option value="1 (Керри)">1 (Керри)</option>
+                                <option value="2 (Мид)">2 (Мид)</option>
+                                <option value="3 (Оффлейн)">3 (Оффлейн)</option>
+                                <option value="4 (Поддержка)">4 (Поддержка)</option>
+                                <option value="5 (Полная поддержка)">5 (Полная поддержка)</option>
+                            </select>
+                            <input type="text" id="geminiHeroInput" placeholder="Имя героя (опционально)">
+                        </div>
                         <button id="geminiTipButton">✨ Дай совет!</button>
                     </div>
                 </div>
@@ -461,12 +587,21 @@
         const notificationStatus = document.getElementById('notificationStatus');
         const geminiTipButton = document.getElementById('geminiTipButton');
         const geminiTipDisplay = document.getElementById('geminiTipDisplay');
+        const geminiSideSelect = document.getElementById('geminiSideSelect');
+        const geminiPositionSelect = document.getElementById('geminiPositionSelect');
+        const geminiHeroInput = document.getElementById('geminiHeroInput');
+        const geminiAdviceLockScreen = document.getElementById('geminiAdviceLockScreen'); 
 
         // --- Constants ---
         const ALERT_OFFSET_SECONDS = 15;
         const PROGRESS_WINDOW_SECONDS = 120;
         const DOTA_ICON_PATH = 'dota_icon.png'; 
         const DYNAMIC_EVENT_LIFETIME_SECONDS = 45; 
+        const AUTO_TIP_INTERVALS = [5 * 60, 10 * 60, 15 * 60, 25 * 60, 35 * 60, 45 * 60]; 
+        const AUTO_TIP_COOLDOWN = 2 * 60; 
+        const LOCKSCREEN_AUTO_TIP_MAX_LENGTH = 80; 
+        const LOCKSCREEN_MANUAL_TIP_MAX_LENGTH_DISPLAY = 100; // Макс. длина ручного совета для LockScreen перед суммаризацией
+
 
         // --- State Variables ---
         let gameTimeInSeconds = 0;
@@ -477,6 +612,8 @@
         let allPotentiallyRecentEvents = [];
         let wakeLockSentinel = null;
         let popUpNotificationsEnabled = false;
+        let lastGeminiRequestTime = 0; 
+        let isGeminiRequestPending = false; 
 
         // --- Screen Wake Lock Functions ---
         const requestWakeLock = async () => {
@@ -549,16 +686,16 @@
         function getBaseEventDefinitions() {
             const dWS = "warning_alert.mp3"; const dENS = "event_now_alert.mp3";
             return [
-                { name: "Начальные Руны Богатства", type: "b_init", spawnTime: 0, isOneTime: true, cat: "rune", ws: dWS, es: dENS },
-                { name: "Водные Руны", type: "water", spawnTimes: [120, 240], cat: "rune", ws: dWS, es: dENS },
-                { name: "Руны Богатства", type: "bounty", firstSpawn: 180, interval: 180, cat: "rune", ws: dWS, es: dENS },
-                { name: "Руны Усиления", type: "power", firstSpawn: 360, interval: 120, cat: "rune", ws: dWS, es: dENS },
-                { name: "Руны Мудрости", type: "wisdom", firstSpawn: 420, interval: 420, cat: "rune", ws: dWS, es: dENS },
-                { name: "Катапульты", type: "siege", firstSpawn: 300, interval: 150, cat: "creep", ws: dWS, es: dENS },
-                { name: "Лотосы", type: "lotus", firstSpawn: 180, interval: 180, cat: "object", ws: dWS, es: dENS },
-                { name: "Терзатель", type: "tormentor", spawnTime: 1200, isOneTime: true, cat: "boss", ws: dWS, es: dENS },
-                { name: "Ночь", type: "night", firstSpawn: 240, interval: 480, cat: "cycle", ws: dWS, es: dENS },
-                { name: "День", type: "day", firstSpawn: 480, interval: 480, cat: "cycle", ws: dWS, es: dENS },
+                { name: "Начальные Руны Богатства", type: "b_init", spawnTime: 0, isOneTime: true, cat: "rune", ws: dWS, es: dENS, priority: 1 },
+                { name: "Водные Руны", type: "water", spawnTimes: [120, 240], cat: "rune", ws: dWS, es: dENS, priority: 1 },
+                { name: "Руны Богатства", type: "bounty", firstSpawn: 180, interval: 180, cat: "rune", ws: dWS, es: dENS, priority: 2 },
+                { name: "Руны Усиления", type: "power", firstSpawn: 360, interval: 120, cat: "rune", ws: dWS, es: dENS, priority: 3 }, 
+                { name: "Руны Мудрости", type: "wisdom", firstSpawn: 420, interval: 420, cat: "rune", ws: dWS, es: dENS, priority: 2 },
+                { name: "Катапульты", type: "siege", firstSpawn: 300, interval: 150, cat: "creep", ws: dWS, es: dENS, priority: 1 },
+                { name: "Лотосы", type: "lotus", firstSpawn: 180, interval: 180, cat: "object", ws: dWS, es: dENS, priority: 1 },
+                { name: "Терзатель", type: "tormentor", spawnTime: 1200, isOneTime: true, cat: "boss", ws: dWS, es: dENS, priority: 3 }, 
+                { name: "Ночь", type: "night", firstSpawn: 240, interval: 480, cat: "cycle", ws: dWS, es: dENS, priority: 1 },
+                { name: "День", type: "day", firstSpawn: 480, interval: 480, cat: "cycle", ws: dWS, es: dENS, priority: 1 },
             ];
         }
         function initializeEventStates(currentTime = 0) {
@@ -589,7 +726,10 @@
             const seconds = totalSeconds % 60;
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
-        function updateTimerDisplay() { timerDisplay.textContent = formatTime(gameTimeInSeconds); }
+        function updateTimerDisplay() { 
+            const formattedTime = formatTime(gameTimeInSeconds);
+            timerDisplay.textContent = formattedTime;
+        }
         function playSound(player, eventNameForLog) { 
             if(player && typeof player.play === 'function') {
                 player.play().catch(error => console.error(`Audio for ${eventNameForLog}:`, error));
@@ -623,7 +763,6 @@
 
             dynamicRecentEventsList.innerHTML = '';
             const container = document.getElementById('dynamicRecentEventsContainer');
-            // Проверяем видимость контейнера не только по style.display, но и по наличию lockscreen класса у body
             const containerVisible = (container && getComputedStyle(container).display !== 'none');
 
 
@@ -643,15 +782,15 @@
 
             eventStates.forEach(event => {
                 if (event.isOneTime && !event.alertedEvent && event.spawnTime > gameTimeInSeconds && event.spawnTime <= displayLimit) {
-                    upcoming.push({ name: event.name, time: event.spawnTime, eventObj: event });
+                    upcoming.push({ name: event.name, time: event.spawnTime, eventObj: event, priority: event.priority || 0 });
                 } else if (event.spawnTimes) {
                     event.spawnTimes.forEach((st, idx) => {
                         if (!event.alertedEvent[idx] && st > gameTimeInSeconds && st <= displayLimit) {
-                            upcoming.push({ name: event.name, time: st, eventObj: event, spawnIndex: idx });
+                            upcoming.push({ name: event.name, time: st, eventObj: event, spawnIndex: idx, priority: event.priority || 0 });
                         }
                     });
                 } else if (!event.isOneTime && !event.spawnTimes && event.nextSpawnTime > gameTimeInSeconds && event.nextSpawnTime <= displayLimit) {
-                    upcoming.push({ name: event.name, time: event.nextSpawnTime, eventObj: event });
+                    upcoming.push({ name: event.name, time: event.nextSpawnTime, eventObj: event, priority: event.priority || 0 });
                 }
             });
             upcoming.sort((a, b) => a.time - b.time);
@@ -667,7 +806,23 @@
                 else if (!e.eventObj.isOneTime && !e.eventObj.spawnTimes) alertedWarningFlag = e.eventObj.alertedWarning;
 
                 const classListVal = timeTo <= 0 && timeTo > -ALERT_OFFSET_SECONDS ? 'alert-event-now' : (alertedWarningFlag && timeTo > 0 && timeTo <= ALERT_OFFSET_SECONDS ? 'alert-warning' : '');
-                eventsList.innerHTML += `<li class="${classListVal}"><div class="event-details"><span class="event-name">${e.name}</span><span class="event-time">через ${formatTime(timeTo)} (в ${formatTime(e.time)})</span></div>${progressHtml}</li>`;
+                
+                let priorityMarks = '';
+                if (e.priority === 3) priorityMarks = '!!!';
+                else if (e.priority === 2) priorityMarks = '!!';
+                else if (e.priority === 1 && e.name !== "День" && e.name !== "Ночь") priorityMarks = '!'; 
+
+                eventsList.innerHTML += `
+                    <li class="${classListVal}">
+                        <div class="event-content">
+                            <div class="event-details">
+                                <span class="event-name">${e.name}</span>
+                                <span class="event-time">через ${formatTime(timeTo)} (в ${formatTime(e.time)})</span>
+                            </div>
+                            ${progressHtml}
+                        </div>
+                        <span class="event-priority-marks">${priorityMarks}</span>
+                    </li>`;
             });
             if (upcoming.length === 0 && isTimerRunning) eventsList.innerHTML = '<li>Нет ожидаемых событий.</li>';
             else if (!isTimerRunning && upcoming.length === 0) eventsList.innerHTML = '<li>Запустите или синхронизируйте.</li>';
@@ -740,11 +895,20 @@
             if (allPotentiallyRecentEvents.length > 20) allPotentiallyRecentEvents = allPotentiallyRecentEvents.slice(0, 20);
             updateAllDisplays();
         }
+        
         function mainLoop() {
             if (!isTimerRunning) return;
             gameTimeInSeconds++;
-            checkAndTriggerAlerts();
+            checkAndTriggerAlerts(); 
+
+            if (AUTO_TIP_INTERVALS.includes(gameTimeInSeconds) && 
+                (gameTimeInSeconds - lastGeminiRequestTime > AUTO_TIP_COOLDOWN) &&
+                !isGeminiRequestPending) {
+                console.log(`Automatic Gemini Tip triggered at ${formatTime(gameTimeInSeconds)}`);
+                getGeminiTip(true); 
+            }
         }
+
 
         // --- LockScreen Mode Logic ---
         async function enterLockScreenMode() {
@@ -762,19 +926,20 @@
                 }
             }
             if (isTimerRunning && !wakeLockSentinel) await requestWakeLock();
-            updateAllDisplays();
+            updateAllDisplays(); 
         }
         async function exitLockScreenMode() {
             document.body.classList.remove('horizontal-lockscreen-mode');
             lockScreenToggleButton.textContent = '📱 Горизонт. Режим';
             exitLockScreenButton.style.display = 'none';
+            if (geminiAdviceLockScreen) geminiAdviceLockScreen.textContent = ""; 
             if (document.fullscreenElement && document.exitFullscreen) {
                 try { await document.exitFullscreen(); } catch (err) { console.warn("Exit FS fail:",err.message); }
             }
             if (screen.orientation && screen.orientation.unlock) {
                 try { screen.orientation.unlock(); } catch (err) { console.warn("Orient. unlock fail:",err.message); }
             }
-            updateAllDisplays();
+            updateAllDisplays(); 
         }
         lockScreenToggleButton.addEventListener('click', () => {
             if (document.body.classList.contains('horizontal-lockscreen-mode')) exitLockScreenMode();
@@ -788,50 +953,117 @@
         });
         
         // --- Gemini API Integration ---
-        geminiTipButton.addEventListener('click', async () => {
-            if (!isTimerRunning && gameTimeInSeconds === 0) {
-                geminiTipDisplay.textContent = "Запустите таймер, чтобы получить совет, актуальный для текущего времени игры.";
-                return;
-            }
-            geminiTipDisplay.innerHTML = "✨ Получение совета от Gemini..."; 
+        function stripMarkdown(text) {
+            if (!text) return "";
+            text = text.replace(/\*\*(.*?)\*\*/g, '$1'); 
+            text = text.replace(/\*(.*?)\*/g, '$1');   
+            text = text.replace(/_(.*?)_/g, '$1');    
+            text = text.replace(/#{1,6}\s*(.*)/g, '$1'); 
+            text = text.replace(/\[(.*?)\]\(.*?\)/g, '$1'); 
+            text = text.replace(/`{1,3}(.*?)`{1,3}/g, '$1'); 
+            text = text.replace(/^\s*[\-\*\+]\s+/gm, ''); 
+            return text.trim();
+        }
 
-            const gameMinutes = Math.floor(gameTimeInSeconds / 60);
-            const prompt = `Dota 2: Сейчас ${gameMinutes} минута игры. Дай краткий и полезный совет (1-2 предложения) для игрока в типичном публичном матче на этой стадии игры. Отвечай на русском языке.`;
-            
-            let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+        async function callGeminiAPI(promptText, model = "gemini-2.0-flash") {
+            let chatHistory = [{ role: "user", parts: [{ text: promptText }] }];
             const payload = { contents: chatHistory };
             const apiKey = ""; 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Gemini API error response:", errorData);
+                throw new Error(`Ошибка от Gemini API: ${response.status} ${response.statusText}. ${errorData?.error?.message || ''}`);
+            }
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                return result.candidates[0].content.parts[0].text;
+            } else {
+                console.error("Unexpected response structure from Gemini API:", result);
+                throw new Error("Неожиданная структура ответа от Gemini API.");
+            }
+        }
+
+
+        async function getGeminiTip(isAutomatic = false) {
+            if (isGeminiRequestPending) {
+                console.log("Gemini request already pending.");
+                if (!isAutomatic) geminiTipDisplay.textContent = "Пожалуйста, подождите предыдущего ответа...";
+                return;
+            }
+            isGeminiRequestPending = true;
+            lastGeminiRequestTime = gameTimeInSeconds;
+
+            const loadingMessage = isAutomatic ? "✨ Авто-совет от Gemini..." : "✨ Получение совета от Gemini...";
+            geminiTipDisplay.innerHTML = loadingMessage;
+            if (geminiAdviceLockScreen) geminiAdviceLockScreen.textContent = "💭"; 
+
+            const gameMinutes = Math.floor(gameTimeInSeconds / 60);
+            const selectedSideVal = geminiSideSelect.value;
+            const selectedPositionVal = geminiPositionSelect.value;
+            const heroNameVal = geminiHeroInput.value.trim();
+
+            const selectedSide = selectedSideVal === "Любая" ? "" : `за сторону ${selectedSideVal}`;
+            const selectedPosition = selectedPositionVal === "Любая" ? "" : `на позиции ${selectedPositionVal}`;
+            const heroInfo = heroNameVal ? `героем ${heroNameVal}` : "";
+
+            let contextString = "";
+            if (selectedSide) contextString += ` ${selectedSide}`;
+            if (selectedPosition) contextString += ` ${selectedPosition}`;
+            if (heroInfo) contextString += ` ${heroInfo}`;
+            
+            let mainPrompt;
+            if (isAutomatic) {
+                mainPrompt = `Dota 2: Сейчас ${gameMinutes} минута игры${contextString}. Дай ОЧЕНЬ краткий (3-7 слов) общий тактический совет для этой стадии игры. Отвечай на русском языке.`;
+            } else {
+                mainPrompt = `Dota 2: Сейчас ${gameMinutes} минута игры. Я играю${contextString}. Посоветуй, какие 2-3 ключевых предмета (билд) стоит собрать для этой стадии игры, и дай краткий тактический совет (1 предложение). Если информация о герое/позиции/стороне неполная, дай наиболее общий и полезный совет для указанной минуты. Отвечай на русском языке.`;
+            }
+            
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                const initialResultText = await callGeminiAPI(mainPrompt);
+                const strippedInitialText = stripMarkdown(initialResultText);
+                
+                geminiTipDisplay.textContent = isAutomatic ? `(Авто): ${strippedInitialText}` : strippedInitialText;
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error("Gemini API error response:", errorData);
-                    throw new Error(`Ошибка от Gemini API: ${response.status} ${response.statusText}. ${errorData?.error?.message || ''}`);
+                if (document.body.classList.contains('horizontal-lockscreen-mode') && geminiAdviceLockScreen) {
+                    const maxLen = isAutomatic ? LOCKSCREEN_AUTO_TIP_MAX_LENGTH : LOCKSCREEN_MANUAL_TIP_MAX_LENGTH_DISPLAY;
+                    if (strippedInitialText.length > maxLen) {
+                        geminiAdviceLockScreen.textContent = "Сокращаю...";
+                        const summaryPrompt = `Суммаризируй этот совет для Dota 2 очень кратко (до ${isAutomatic ? '5-7' : '10-15'} слов), сохранив основной смысл: "${strippedInitialText}". Отвечай на русском языке.`;
+                        try {
+                            const summarizedText = await callGeminiAPI(summaryPrompt);
+                            geminiAdviceLockScreen.textContent = stripMarkdown(summarizedText);
+                        } catch (summaryError) {
+                            console.error("Error summarizing tip for LockScreen:", summaryError);
+                            geminiAdviceLockScreen.textContent = strippedInitialText.substring(0, maxLen) + (strippedInitialText.length > maxLen ? "..." : "");
+                        }
+                    } else {
+                         geminiAdviceLockScreen.textContent = strippedInitialText;
+                    }
+                } else if (geminiAdviceLockScreen) { // Если не в LockScreen, но элемент существует, очищаем его
+                    geminiAdviceLockScreen.textContent = ""; 
                 }
 
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    geminiTipDisplay.textContent = text;
-                } else {
-                    console.error("Unexpected response structure from Gemini API:", result);
-                    geminiTipDisplay.textContent = "Не удалось получить совет. Попробуйте позже.";
-                }
             } catch (error) {
                 console.error('Ошибка при запросе к Gemini API:', error);
-                geminiTipDisplay.textContent = `Произошла ошибка: ${error.message}. Попробуйте позже.`;
+                const errorMessage = `Ошибка: ${error.message}.`;
+                geminiTipDisplay.textContent = errorMessage;
+                if (geminiAdviceLockScreen) geminiAdviceLockScreen.textContent = "Ошибка";
+            } finally {
+                isGeminiRequestPending = false;
             }
-        });
+        }
+        geminiTipButton.addEventListener('click', () => getGeminiTip(false));
 
 
         // --- Event Listeners for Controls ---
@@ -865,8 +1097,12 @@
             if(timerInterval) clearInterval(timerInterval); timerInterval = null;
             gameTimeInSeconds = 0;
             syncMinutesInput.value = ''; syncSecondsInput.value = '';
+            geminiSideSelect.value = "Любая";
+            geminiPositionSelect.value = "Любая";
+            geminiHeroInput.value = "";
             initializeEventStates(0); rebuildPastEventsLog(0); allPotentiallyRecentEvents = [];
             geminiTipDisplay.textContent = ""; 
+            if (geminiAdviceLockScreen) geminiAdviceLockScreen.textContent = "";
             updateAllDisplays();
             startButton.textContent = "Start Timer";
         });
@@ -907,6 +1143,7 @@
             allPotentiallyRecentEvents.sort((a,b) => b.occurrenceTime - a.occurrenceTime);
             if(allPotentiallyRecentEvents.length > 20) allPotentiallyRecentEvents = allPotentiallyRecentEvents.slice(0,20);
             geminiTipDisplay.textContent = ""; 
+            if (geminiAdviceLockScreen) geminiAdviceLockScreen.textContent = "";
             updateAllDisplays();
             startButton.textContent = "Resume Timer";
         });
