@@ -1,22 +1,24 @@
-// manifest.json
 {
     "name": "Dota 2 Таймер Событий",
     "short_name": "Dota Таймер",
+    "description": "Таймер для отслеживания событий и получения советов в Dota 2.",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#1c1c1e",
-    "theme_color": "#00aeff",
-    "description": "Таймер для отслеживания событий в Dota 2.",
+    "background_color": "#0E1013",
+    "theme_color": "#1C1F26",
+    "orientation": "any",
     "icons": [
         {
-            "src": "dota_icon192.png", // Убедитесь, что иконка есть
+            "src": "dota_icon192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         },
         {
-            "src": "dota_icon512.png", // Можно добавить иконку большего размера
+            "src": "dota_icon512.png", 
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ]
 }
