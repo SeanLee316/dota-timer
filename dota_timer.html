@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dota 2 Таймер Событий v2</title>
+    <title>Dota 2 Таймер Событий v5 (Notifications)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -33,23 +33,56 @@
             background-color: #2a2a2a;
             padding: 15px;
             border-radius: 8px;
-            max-height: 80vh;
+            max-height: calc(90vh - 60px);
             overflow-y: auto;
         }
         #timerDisplay {
             font-size: 3.5em;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             color: #00aeff;
             font-weight: bold;
             text-shadow: 0 0 5px rgba(0,174,255,0.5);
         }
-        .controls {
-            margin-bottom: 20px;
+        .controls-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
         }
-        .controls button {
-            font-size: 1.1em;
-            padding: 10px 18px;
-            margin: 5px;
+        .time-sync-controls, .main-controls, .notification-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #2a2a2a;
+            padding: 10px;
+            border-radius: 5px;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            justify-content: center;
+        }
+        .time-sync-controls input[type="number"] {
+            width: 50px;
+            padding: 8px;
+            font-size: 1em;
+            text-align: center;
+            border: 1px solid #444;
+            background-color: #333;
+            color: #e0e0e0;
+            border-radius: 3px;
+            -moz-appearance: textfield;
+        }
+        .time-sync-controls input[type="number"]::-webkit-outer-spin-button,
+        .time-sync-controls input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .time-sync-controls span {
+            font-size: 1.2em;
+            color: #00aeff;
+        }
+        .controls button, .time-sync-controls button, .notification-controls button {
+            font-size: 1em; /* Unified button size */
+            padding: 8px 15px;
             cursor: pointer;
             border: none;
             border-radius: 5px;
@@ -57,8 +90,21 @@
             color: #ffffff;
             transition: background-color 0.2s ease-in-out;
         }
+         .time-sync-controls button {
+            background-color: #5cb85c;
+        }
+        .notification-controls button {
+            background-color: #ffc107; /* Yellow for notifications */
+            color: #1e1e1e;
+        }
         .controls button:hover {
             background-color: #007acc;
+        }
+        .time-sync-controls button:hover {
+            background-color: #4cae4c;
+        }
+        .notification-controls button:hover {
+            background-color: #e0a800;
         }
         .section-title {
             text-align: center;
@@ -103,43 +149,35 @@
             width: 0%;
             transition: width 0.5s linear;
         }
-        .alert-warning { /* Для события, по которому скоро будет предупреждение */
-            border-left-color: #ffc107 !important;
-        }
-        .alert-event-now { /* Для события, которое наступает прямо сейчас */
+        .alert-warning { border-left-color: #ffc107 !important; }
+        .alert-event-now {
             border-left-color: #dc3545 !important;
-            animation: pulse 1s infinite;
+            animation: pulse 1s infinite alternate;
         }
         @keyframes pulse {
-            0% { background-color: #e74c3c; }
-            50% { background-color: #c0392b; }
-            100% { background-color: #e74c3c; }
+            0% { background-color: rgba(220, 53, 69, 0.5); }
+            100% { background-color: rgba(220, 53, 69, 0.2); }
+        }
+        .right-panel::-webkit-scrollbar { width: 8px; }
+        .right-panel::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 8px; }
+        .right-panel::-webkit-scrollbar-thumb { background: #555; border-radius: 8px; }
+        .right-panel::-webkit-scrollbar-thumb:hover { background: #777; }
+
+        .status-messages {
+            font-size: 0.8em;
+            color: #aaa;
+            margin-top: 5px; /* Reduced from 10px */
+            text-align: center;
+            min-height: 1em;
         }
 
-        /* Scrollbar styles for right panel */
-        .right-panel::-webkit-scrollbar {
-            width: 8px;
-        }
-        .right-panel::-webkit-scrollbar-track {
-            background: #2a2a2a;
-            border-radius: 8px;
-        }
-        .right-panel::-webkit-scrollbar-thumb {
-            background: #555;
-            border-radius: 8px;
-        }
-        .right-panel::-webkit-scrollbar-thumb:hover {
-            background: #777;
-        }
 
         @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-            }
-            .right-panel {
-                max-height: 40vh;
-            }
+            .main-container { flex-direction: column; }
+            .right-panel { max-height: 40vh; }
             #timerDisplay { font-size: 2.5em; }
+            .time-sync-controls, .main-controls, .notification-controls { flex-wrap: wrap; justify-content: center; }
+            .time-sync-controls input[type="number"] { width: 45px; }
         }
     </style>
 </head>
@@ -147,10 +185,24 @@
     <div class="main-container">
         <div class="left-panel">
             <div id="timerDisplay">00:00</div>
-            <div class="controls">
-                <button id="startButton">Start Timer</button>
-                <button id="resetButton">Reset Timer</button>
+            <div class="controls-column">
+                <div class="time-sync-controls">
+                    <input type="number" id="syncMinutes" placeholder="MM" min="0">
+                    <span>:</span>
+                    <input type="number" id="syncSeconds" placeholder="SS" min="0" max="59">
+                    <button id="syncButton">Синхронизировать</button>
+                </div>
+                <div class="main-controls">
+                    <button id="startButton">Start Timer</button>
+                    <button id="resetButton">Reset Timer</button>
+                </div>
+                <div class="notification-controls">
+                    <button id="toggleNotificationsButton">Включить Уведомления</button>
+                </div>
             </div>
+             <div id="wakeLockStatus" class="status-messages"></div>
+             <div id="notificationStatus" class="status-messages"></div>
+
 
             <div id="upcomingEvents" style="width:100%; max-width:600px;">
                 <h2 class="section-title">Ближайшие события</h2>
@@ -174,40 +226,208 @@
         const pastEventsLogList = document.getElementById('pastEventsLogList');
         const warningSoundPlayer = document.getElementById('warningSoundPlayer');
         const eventNowSoundPlayer = document.getElementById('eventNowSoundPlayer');
+        const wakeLockStatus = document.getElementById('wakeLockStatus');
+        const notificationStatus = document.getElementById('notificationStatus');
+        const toggleNotificationsButton = document.getElementById('toggleNotificationsButton');
 
-        const ALERT_OFFSET_SECONDS = 15; // За сколько секунд до события давать предупреждение
-        const PROGRESS_WINDOW_SECONDS = 120; // За сколько секунд до события начинать показывать прогресс-бар
+        const syncMinutesInput = document.getElementById('syncMinutes');
+        const syncSecondsInput = document.getElementById('syncSeconds');
+        const syncButton = document.getElementById('syncButton');
+
+        const ALERT_OFFSET_SECONDS = 15;
+        const PROGRESS_WINDOW_SECONDS = 120;
+        const DOTA_ICON_PATH = 'dota_icon.png'; // ЗАМЕНИТЕ НА ПУТЬ К ВАШЕЙ ИКОНКЕ
 
         let gameTimeInSeconds = 0;
         let timerInterval = null;
         let isTimerRunning = false;
         let eventStates = [];
         let pastEventsLog = [];
+        
+        let wakeLockSentinel = null; 
+        let popUpNotificationsEnabled = false;
 
-        function getInitialEventStates() {
-            // Звуки по умолчанию, если не указаны для конкретного события
+
+        // --- Notification Functions ---
+        function updateNotificationButtonText() {
+            if (Notification.permission === 'denied') {
+                toggleNotificationsButton.textContent = 'Уведомления Заблокированы';
+                toggleNotificationsButton.disabled = true;
+                notificationStatus.textContent = 'Вы заблокировали уведомления для этого сайта.';
+            } else if (popUpNotificationsEnabled && Notification.permission === 'granted') {
+                toggleNotificationsButton.textContent = 'Выключить Уведомления';
+                notificationStatus.textContent = 'Всплывающие уведомления включены.';
+            } else {
+                toggleNotificationsButton.textContent = 'Включить Уведомления';
+                 notificationStatus.textContent = Notification.permission === 'granted' ? 'Всплывающие уведомления выключены.' : 'Разрешите уведомления для сайта.';
+            }
+        }
+
+        toggleNotificationsButton.addEventListener('click', () => {
+            if (Notification.permission === 'denied') {
+                alert('Уведомления заблокированы в настройках вашего браузера для этого сайта.');
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                popUpNotificationsEnabled = !popUpNotificationsEnabled;
+                updateNotificationButtonText();
+            } else if (Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        popUpNotificationsEnabled = true;
+                        console.log('Notification permission granted.');
+                    } else {
+                        console.log('Notification permission denied.');
+                    }
+                    updateNotificationButtonText();
+                });
+            }
+        });
+
+        function showBrowserNotification(title, body, tag, requireInteraction = false) {
+            if (!popUpNotificationsEnabled || Notification.permission !== 'granted' || !document.hasFocus()) {
+                // Не показываем уведомление, если выключены, не разрешены или вкладка не активна (чтобы не спамить если юзер не смотрит)
+                // Хотя последнее условие (document.hasFocus()) может быть спорным, иногда юзер хочет уведомления и в фоне.
+                // Пока оставим так, чтобы не было навязчиво. Если хотите всегда - уберите !document.hasFocus()
+                return;
+            }
+
+            const options = {
+                body: body,
+                icon: DOTA_ICON_PATH, 
+                tag: tag, 
+                renotify: true, 
+                requireInteraction: requireInteraction 
+            };
+
+            try {
+                const notification = new Notification(title, options);
+                // Можно добавить обработчики событий на notification (onclick, onerror, onclose) если нужно
+                // notification.onclick = () => { window.focus(); this.close(); };
+            } catch (e) {
+                console.error("Error showing notification: ", e);
+            }
+        }
+        // --- End Notification Functions ---
+
+        // --- Screen Wake Lock Functions ---
+        const requestWakeLock = async () => {
+            if ('wakeLock' in navigator) {
+                try {
+                    if (wakeLockSentinel) {
+                        await wakeLockSentinel.release();
+                        wakeLockSentinel = null;
+                    }
+                    wakeLockSentinel = await navigator.wakeLock.request('screen');
+                    wakeLockStatus.textContent = 'Экран не будет гаснуть.';
+                    console.log('Screen Wake Lock active.');
+                    wakeLockSentinel.addEventListener('release', () => {
+                        console.log('Screen Wake Lock released (event).');
+                        wakeLockStatus.textContent = '';
+                        if (event.target === wakeLockSentinel) wakeLockSentinel = null;
+                    });
+                } catch (err) {
+                    console.error(`Wake Lock request failed: ${err.name}, ${err.message}`);
+                    wakeLockStatus.textContent = 'Не удалось удержать экран.';
+                    wakeLockSentinel = null;
+                }
+            } else {
+                console.warn('Screen Wake Lock API not supported.');
+                wakeLockStatus.textContent = 'API удержания экрана не поддерживается.';
+            }
+        };
+
+        const releaseWakeLock = async () => {
+            if (wakeLockSentinel) {
+                try {
+                    await wakeLockSentinel.release();
+                    console.log('Screen Wake Lock released manually.');
+                } catch (err) {
+                    console.error(`Wake Lock release failed: ${err.name}, ${err.message}`);
+                } finally {
+                    wakeLockSentinel = null;
+                    wakeLockStatus.textContent = '';
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible' && isTimerRunning && !wakeLockSentinel) {
+                console.log('Tab became visible, timer running, re-requesting wake lock.');
+                await requestWakeLock();
+            }
+        });
+        // --- End Screen Wake Lock Functions ---
+
+
+        function getBaseEventDefinitions() {
             const defaultWarningSound = "warning_alert.mp3";
             const defaultEventNowSound = "event_now_alert.mp3";
-
             return [
-                // --- Руны ---
-                { name: "Начальные Руны Богатства", type: "bounty_initial", spawnTime: 0, alertedWarning: false, alertedEvent: false, isOneTime: true, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                { name: "Водные Руны", type: "water_runes", spawnTimes: [2 * 60, 4 * 60], alertedWarning: [false, false], alertedEvent: [false, false], category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                { name: "Руны Богатства", type: "bounty_repeating", firstSpawn: 3 * 60, interval: 3 * 60, nextSpawnTime: 3 * 60, alertedWarning: false, alertedEvent: false, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                { name: "Руны Усиления", type: "power_runes", firstSpawn: 6 * 60, interval: 2 * 60, nextSpawnTime: 6 * 60, alertedWarning: false, alertedEvent: false, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                { name: "Руны Мудрости", type: "wisdom_runes", firstSpawn: 7 * 60, interval: 7 * 60, nextSpawnTime: 7 * 60, alertedWarning: false, alertedEvent: false, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                // --- Крипы ---
-                { name: "Катапульты", type: "siege_creeps", firstSpawn: 5 * 60, interval: 2.5 * 60, nextSpawnTime: 5 * 60, alertedWarning: false, alertedEvent: false, category: "creep", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                // --- Объекты и Боссы ---
-                { name: "Лотосы", type: "lotus_pool", firstSpawn: 3 * 60, interval: 3 * 60, nextSpawnTime: 3 * 60, alertedWarning: false, alertedEvent: false, category: "object", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                { name: "Терзатель (первый)", type: "tormentor", spawnTime: 20 * 60, alertedWarning: false, alertedEvent: false, isOneTime: true, category: "boss", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                // --- Игровые циклы ---
-                { name: "Наступление Ночи", type: "night_cycle", firstSpawn: 4 * 60, interval: 8 * 60, nextSpawnTime: 4 * 60, alertedWarning: false, alertedEvent: false, category: "cycle", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
-                { name: "Наступление Дня", type: "day_cycle", firstSpawn: 8 * 60, interval: 8 * 60, nextSpawnTime: 8 * 60, alertedWarning: false, alertedEvent: false, category: "cycle", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Начальные Руны Богатства", type: "bounty_initial", spawnTime: 0, isOneTime: true, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Водные Руны", type: "water_runes", spawnTimes: [2 * 60, 4 * 60], category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Руны Богатства", type: "bounty_repeating", firstSpawn: 3 * 60, interval: 3 * 60, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Руны Усиления", type: "power_runes", firstSpawn: 6 * 60, interval: 2 * 60, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Руны Мудрости", type: "wisdom_runes", firstSpawn: 7 * 60, interval: 7 * 60, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Катапульты", type: "siege_creeps", firstSpawn: 5 * 60, interval: 2.5 * 60, category: "creep", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Лотосы", type: "lotus_pool", firstSpawn: 3 * 60, interval: 3 * 60, category: "object", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Терзатель (первый)", type: "tormentor", spawnTime: 20 * 60, isOneTime: true, category: "boss", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Наступление Ночи", type: "night_cycle", firstSpawn: 4 * 60, interval: 8 * 60, category: "cycle", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Наступление Дня", type: "day_cycle", firstSpawn: 8 * 60, interval: 8 * 60, category: "cycle", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
             ];
         }
 
+        function initializeEventStates(currentTime = 0) {
+            const baseDefinitions = getBaseEventDefinitions();
+            eventStates = baseDefinitions.map(def => {
+                const event = { ...def };
+                if (event.isOneTime) {
+                    event.alertedWarning = (currentTime >= event.spawnTime - ALERT_OFFSET_SECONDS && currentTime < event.spawnTime);
+                    event.alertedEvent = (currentTime >= event.spawnTime);
+                } else if (event.spawnTimes) {
+                    event.alertedWarning = event.spawnTimes.map(st => currentTime >= st - ALERT_OFFSET_SECONDS && currentTime < st);
+                    event.alertedEvent = event.spawnTimes.map(st => currentTime >= st);
+                } else {
+                    event.nextSpawnTime = event.firstSpawn;
+                    while (event.nextSpawnTime <= currentTime) {
+                        event.nextSpawnTime += event.interval;
+                    }
+                    event.alertedWarning = (currentTime >= event.nextSpawnTime - ALERT_OFFSET_SECONDS && currentTime < event.nextSpawnTime);
+                    event.alertedEvent = false; 
+                }
+                return event;
+            });
+        }
+
+        function rebuildPastEventsLog(currentTime) {
+            pastEventsLog = [];
+            const baseDefinitions = getBaseEventDefinitions();
+            baseDefinitions.forEach(def => {
+                if (def.isOneTime) {
+                    if (def.spawnTime <= currentTime) {
+                        pastEventsLog.push({ name: def.name, time: formatTime(def.spawnTime), rawTime: def.spawnTime });
+                    }
+                } else if (def.spawnTimes) {
+                    def.spawnTimes.forEach(st => {
+                        if (st <= currentTime) {
+                            pastEventsLog.push({ name: `${def.name} (${formatTime(st)})`, time: formatTime(st), rawTime: st });
+                        }
+                    });
+                } else { 
+                    let currentSpawn = def.firstSpawn;
+                    while (currentSpawn <= currentTime) {
+                        pastEventsLog.push({ name: def.name, time: formatTime(currentSpawn), rawTime: currentSpawn });
+                        currentSpawn += def.interval;
+                    }
+                }
+            });
+            pastEventsLog.sort((a, b) => b.rawTime - a.rawTime); 
+            if (pastEventsLog.length > 50) pastEventsLog = pastEventsLog.slice(0, 50);
+            updatePastEventsLogDisplay();
+        }
+
         function formatTime(totalSeconds) {
+            if (isNaN(totalSeconds) || totalSeconds < 0) totalSeconds = 0;
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
@@ -217,15 +437,8 @@
             timerDisplay.textContent = formatTime(gameTimeInSeconds);
         }
 
-        function playSound(player, soundSrc, eventNameForLog) {
-            if (player.src !== soundSrc) player.src = soundSrc; // На случай если захотите разные звуки для разных событий
+        function playSound(player, eventNameForLog) { // Removed soundSrc as it's fixed in HTML
             player.play().catch(error => console.error(`Audio play failed for ${eventNameForLog}:`, error));
-        }
-
-        function addToLog(eventName, time) {
-            pastEventsLog.unshift({ name: eventName, time: formatTime(time) }); // Добавляем в начало
-            if (pastEventsLog.length > 50) pastEventsLog.pop(); // Ограничиваем размер лога
-            updatePastEventsLogDisplay();
         }
 
         function updatePastEventsLogDisplay() {
@@ -235,53 +448,88 @@
                 listItem.innerHTML = `<span class="event-name">${logEntry.name}</span> <span class="log-time">(${logEntry.time})</span>`;
                 pastEventsLogList.appendChild(listItem);
             });
+             if(pastEventsLog.length === 0) {
+                pastEventsLogList.innerHTML = '<li>Лог событий пуст.</li>';
+            }
         }
 
         function checkAndTriggerAlerts() {
             eventStates.forEach(event => {
+                let eventTime, eventDisplayName;
+
                 if (event.isOneTime) {
-                    // Предупреждение
-                    if (!event.alertedWarning && gameTimeInSeconds >= event.spawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < event.spawnTime) {
-                        playSound(warningSoundPlayer, event.warningSound, event.name + " Warning");
+                    if (event.alertedEvent) return; // Уже свершилось и обработано
+                    eventTime = event.spawnTime;
+                    eventDisplayName = event.name;
+
+                    if (!event.alertedWarning && gameTimeInSeconds >= eventTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < eventTime) {
+                        playSound(warningSoundPlayer, eventDisplayName + " Warning Sound");
+                        showBrowserNotification(`Предупреждение: ${eventDisplayName}`, `Через ${ALERT_OFFSET_SECONDS} сек. (в ${formatTime(eventTime)})`, `d2timer-${event.type}-${eventTime}`, false);
                         event.alertedWarning = true;
                     }
-                    // Само событие
-                    if (!event.alertedEvent && gameTimeInSeconds >= event.spawnTime) {
-                        playSound(eventNowSoundPlayer, event.eventSound, event.name + " Event Now");
-                        addToLog(event.name, event.spawnTime);
-                        event.alertedEvent = true; // Больше не обрабатывать это одноразовое событие
+                    if (!event.alertedEvent && gameTimeInSeconds >= eventTime) {
+                        playSound(eventNowSoundPlayer, eventDisplayName + " Event Now Sound");
+                        showBrowserNotification(`${eventDisplayName} СЕЙЧАС!`, `Событие началось в ${formatTime(eventTime)}`, `d2timer-${event.type}-${eventTime}`, true);
+                        if (!pastEventsLog.find(e => e.rawTime === eventTime && e.name === eventDisplayName)) {
+                             rebuildPastEventsLog(gameTimeInSeconds); 
+                        }
+                        event.alertedEvent = true;
                     }
-                } else if (event.spawnTimes) { // Для событий с фиксированным списком (Водные руны)
+                } else if (event.spawnTimes) { // Fixed list like Water Runes
                     event.spawnTimes.forEach((spawnTime, index) => {
-                        // Предупреждение
-                        if (!event.alertedWarning[index] && gameTimeInSeconds >= spawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < spawnTime) {
-                            playSound(warningSoundPlayer, event.warningSound, `${event.name} #${index + 1} Warning`);
+                        if (event.alertedEvent[index]) return;
+                        eventTime = spawnTime;
+                        eventDisplayName = `${event.name} (${formatTime(eventTime)})`;
+
+                        if (!event.alertedWarning[index] && gameTimeInSeconds >= eventTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < eventTime) {
+                            playSound(warningSoundPlayer, eventDisplayName + " Warning Sound");
+                            showBrowserNotification(`Предупреждение: ${event.name}`, `Через ${ALERT_OFFSET_SECONDS} сек. (в ${formatTime(eventTime)})`, `d2timer-${event.type}-${eventTime}`, false);
                             event.alertedWarning[index] = true;
                         }
-                        // Само событие
-                        if (!event.alertedEvent[index] && gameTimeInSeconds >= spawnTime) {
-                            playSound(eventNowSoundPlayer, event.eventSound, `${event.name} #${index + 1} Event Now`);
-                            addToLog(`${event.name} (${formatTime(spawnTime)})`, spawnTime);
+                        if (!event.alertedEvent[index] && gameTimeInSeconds >= eventTime) {
+                            playSound(eventNowSoundPlayer, eventDisplayName + " Event Now Sound");
+                            showBrowserNotification(`${event.name} СЕЙЧАС!`, `Событие началось в ${formatTime(eventTime)}`, `d2timer-${event.type}-${eventTime}`, true);
+                             if (!pastEventsLog.find(e => e.rawTime === eventTime && e.name.includes(event.name))) { // check if this specific instance is logged
+                                rebuildPastEventsLog(gameTimeInSeconds);
+                            }
                             event.alertedEvent[index] = true;
                         }
                     });
-                } else { // Для повторяющихся событий
-                    // Предупреждение
-                    if (!event.alertedWarning && gameTimeInSeconds >= event.nextSpawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < event.nextSpawnTime) {
-                        playSound(warningSoundPlayer, event.warningSound, event.name + " Warning");
+                } else { // Repeating
+                    eventTime = event.nextSpawnTime;
+                    eventDisplayName = event.name;
+
+                    if (!event.alertedWarning && gameTimeInSeconds >= eventTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < eventTime) {
+                        playSound(warningSoundPlayer, eventDisplayName + " Warning Sound");
+                        showBrowserNotification(`Предупреждение: ${eventDisplayName}`, `Через ${ALERT_OFFSET_SECONDS} сек. (в ${formatTime(eventTime)})`, `d2timer-${event.type}-${eventTime}`, false);
                         event.alertedWarning = true;
                     }
-                    // Само событие
-                    if (gameTimeInSeconds >= event.nextSpawnTime) {
-                        if (!event.alertedEvent) { // Проверяем, чтобы событие и лог сработали один раз для текущего nextSpawnTime
-                           playSound(eventNowSoundPlayer, event.eventSound, event.name + " Event Now");
-                           addToLog(event.name, event.nextSpawnTime);
-                           event.alertedEvent = true; // Отмечаем, что это конкретное событие обработано
+                    
+                    if (gameTimeInSeconds >= eventTime) { // Check if current time passed the scheduled event time
+                        if (!event.alertedEvent) { 
+                           playSound(eventNowSoundPlayer, eventDisplayName + " Event Now Sound");
+                           showBrowserNotification(`${eventDisplayName} СЕЙЧАС!`, `Событие началось в ${formatTime(eventTime)}`, `d2timer-${event.type}-${eventTime}`, true);
+                            if (!pastEventsLog.find(e => e.rawTime === eventTime && e.name === eventDisplayName)) {
+                                rebuildPastEventsLog(gameTimeInSeconds); 
+                            }
+                           event.alertedEvent = true; 
                         }
-                        // Готовимся к следующему появлению
-                        event.nextSpawnTime += event.interval;
-                        event.alertedWarning = false;
-                        event.alertedEvent = false; // Сбрасываем флаги для СЛЕДУЮЩЕГО события
+                        
+                        // Correctly advance to the *next* future spawn time
+                        const previousNextSpawnTime = event.nextSpawnTime;
+                        while(event.nextSpawnTime <= gameTimeInSeconds) { 
+                            event.nextSpawnTime += event.interval;
+                        }
+                        // Reset flags only if we actually advanced to a new spawn time slot
+                        if (event.nextSpawnTime > previousNextSpawnTime) {
+                             event.alertedWarning = false;
+                             event.alertedEvent = false; // Reset for the *new* future spawn
+                        } else if (event.alertedEvent && gameTimeInSeconds < event.nextSpawnTime) {
+                            // This case means the event happened, was alerted, but gameTime hasn't reached the *new* nextSpawnTime's interval yet.
+                            // We should not reset alertedWarning/Event yet for the *current* eventTime.
+                            // The flags `alertedWarning` and `alertedEvent` should pertain to `event.nextSpawnTime`.
+                            // The advancement logic seems correct above.
+                        }
                     }
                 }
             });
@@ -290,34 +538,33 @@
 
         function updateUpcomingEventsDisplay() {
             const upcoming = [];
-            const displayLimitFutureSeconds = gameTimeInSeconds + 15 * 60; // Показать события на ближайшие 15 минут
+            const displayLimitFutureSeconds = gameTimeInSeconds + 15 * 60;
 
             eventStates.forEach(event => {
                 if (event.isOneTime && !event.alertedEvent && gameTimeInSeconds < event.spawnTime) {
                     if (event.spawnTime <= displayLimitFutureSeconds) {
-                        upcoming.push({ name: event.name, time: event.spawnTime, alertedWarning: event.alertedWarning });
+                        upcoming.push({ name: event.name, time: event.spawnTime, eventObj: event });
                     }
                 } else if (event.spawnTimes) {
                      event.spawnTimes.forEach((spawnTime, index) => {
                         if (!event.alertedEvent[index] && gameTimeInSeconds < spawnTime && spawnTime <= displayLimitFutureSeconds) {
-                             upcoming.push({ name: `${event.name}`, time: spawnTime, alertedWarning: event.alertedWarning[index] });
+                             upcoming.push({ name: `${event.name}`, time: spawnTime, eventObj: event, spawnIndex: index });
                         }
                     });
-                } else if (!event.isOneTime && !event.spawnTimes) { // Repeating events
-                    if (event.nextSpawnTime <= displayLimitFutureSeconds) {
-                        upcoming.push({ name: event.name, time: event.nextSpawnTime, alertedWarning: event.alertedWarning });
+                } else if (!event.isOneTime && !event.spawnTimes) {
+                    if (event.nextSpawnTime <= displayLimitFutureSeconds && gameTimeInSeconds < event.nextSpawnTime && !event.alertedEvent) { 
+                        // Added !event.alertedEvent for repeating to ensure we don't show an event that just triggered and is pending flag reset for next interval
+                        upcoming.push({ name: event.name, time: event.nextSpawnTime, eventObj: event });
                     }
                 }
             });
 
             upcoming.sort((a, b) => a.time - b.time);
-
             eventsList.innerHTML = '';
             const maxEventsToShow = 7;
             upcoming.slice(0, maxEventsToShow).forEach(e => {
                 const listItem = document.createElement('li');
                 const timeToSpawn = e.time - gameTimeInSeconds;
-
                 let progressBarHtml = '';
                 if (timeToSpawn <= PROGRESS_WINDOW_SECONDS && timeToSpawn > 0) {
                     const elapsedInWindow = PROGRESS_WINDOW_SECONDS - timeToSpawn;
@@ -327,7 +574,6 @@
                             <div class="progress-bar" style="width: ${progressPercent}%;"></div>
                         </div>`;
                 }
-
                 listItem.innerHTML = `
                     <div class="event-details">
                         <span class="event-name">${e.name}</span>
@@ -335,82 +581,113 @@
                     </div>
                     ${progressBarHtml}
                 `;
+                let isWarningActive = false;
+                if (e.eventObj.isOneTime) isWarningActive = e.eventObj.alertedWarning;
+                else if (e.eventObj.spawnTimes) isWarningActive = e.eventObj.alertedWarning[e.spawnIndex];
+                else isWarningActive = e.eventObj.alertedWarning;
 
-                if (timeToSpawn <= 0 && timeToSpawn > -ALERT_OFFSET_SECONDS) { // Событие наступает сейчас
+                if (timeToSpawn <= 0 && timeToSpawn > -ALERT_OFFSET_SECONDS) { // Event is NOW
                     listItem.classList.add('alert-event-now');
-                } else if (e.alertedWarning && timeToSpawn > 0 && timeToSpawn <= ALERT_OFFSET_SECONDS) { // Предупреждение активно
+                } else if (isWarningActive && timeToSpawn > 0 && timeToSpawn <= ALERT_OFFSET_SECONDS) { // Warning active
                      listItem.classList.add('alert-warning');
                 }
-
-
                 eventsList.appendChild(listItem);
             });
-
-            if (upcoming.length === 0 && isTimerRunning) {
+             if (upcoming.length === 0 && isTimerRunning) {
                 eventsList.innerHTML = '<li>Нет ожидаемых событий в ближайшее время.</li>';
+            } else if (!isTimerRunning && upcoming.length === 0) {
+                 eventsList.innerHTML = '<li>Нет ожидаемых событий. Запустите или синхронизируйте таймер.</li>';
             } else if (!isTimerRunning && gameTimeInSeconds === 0) {
                 eventsList.innerHTML = '<li>Таймер не запущен.</li>';
             }
         }
 
         function mainLoop() {
+            if (!isTimerRunning) return;
             gameTimeInSeconds++;
             updateTimerDisplay();
-            checkAndTriggerAlerts(); // Проверка и триггеры должны быть до обновления отображения списка
+            checkAndTriggerAlerts();
         }
 
         function attemptInitialSoundUnlock() {
-             // Для "разблокировки" аудио на мобильных при первом взаимодействии
             const promise1 = warningSoundPlayer.play();
-            if (promise1 !== undefined) {
-                promise1.then(_ => warningSoundPlayer.pause()).catch(error => {});
-            }
+            if (promise1 !== undefined) promise1.then(_ => warningSoundPlayer.pause()).catch(error => {});
             const promise2 = eventNowSoundPlayer.play();
-            if (promise2 !== undefined) {
-                promise2.then(_ => eventNowSoundPlayer.pause()).catch(error => {});
-            }
+            if (promise2 !== undefined) promise2.then(_ => eventNowSoundPlayer.pause()).catch(error => {});
         }
 
-        startButton.addEventListener('click', () => {
+        startButton.addEventListener('click', async () => { 
             attemptInitialSoundUnlock();
-
             if (!isTimerRunning) {
                 isTimerRunning = true;
-                if (gameTimeInSeconds === 0) { // Только если это полный старт, а не продолжение
-                    eventStates = getInitialEventStates();
-                    pastEventsLog = [];
-                    updatePastEventsLogDisplay();
+                await requestWakeLock(); 
+                 if (gameTimeInSeconds === 0 && pastEventsLog.length === 0) { 
+                    initializeEventStates(0);
+                    rebuildPastEventsLog(0);
                 }
-                updateTimerDisplay();
-                updateUpcomingEventsDisplay();
+                updateAllDisplays();
                 timerInterval = setInterval(mainLoop, 1000);
                 startButton.textContent = "Pause Timer";
             } else {
                 isTimerRunning = false;
+                await releaseWakeLock(); 
                 clearInterval(timerInterval);
                 startButton.textContent = "Resume Timer";
             }
         });
 
-        resetButton.addEventListener('click', () => {
+        resetButton.addEventListener('click', async () => { 
             attemptInitialSoundUnlock();
             isTimerRunning = false;
+            await releaseWakeLock(); 
             clearInterval(timerInterval);
             gameTimeInSeconds = 0;
-            eventStates = getInitialEventStates();
-            pastEventsLog = [];
-            updateTimerDisplay();
-            updateUpcomingEventsDisplay();
-            updatePastEventsLogDisplay();
+            syncMinutesInput.value = '';
+            syncSecondsInput.value = '';
+            initializeEventStates(0);
+            rebuildPastEventsLog(0);
+            updateAllDisplays();
             startButton.textContent = "Start Timer";
             console.log("Timer Reset.");
         });
 
-        // Инициализация отображения при загрузке
-        eventStates = getInitialEventStates();
-        updateTimerDisplay();
-        updateUpcomingEventsDisplay();
-        updatePastEventsLogDisplay();
+        syncButton.addEventListener('click', async () => { 
+            attemptInitialSoundUnlock();
+            let wasTimerRunningBeforeSyncOp = isTimerRunning; 
+            if (isTimerRunning) {
+                isTimerRunning = false;
+                clearInterval(timerInterval);
+            }
+            const minutes = parseInt(syncMinutesInput.value) || 0;
+            const seconds = parseInt(syncSecondsInput.value) || 0;
+
+            if (minutes < 0 || seconds < 0 || seconds > 59) {
+                alert("Пожалуйста, введите корректное время (минуты >= 0, секунды 0-59).");
+                if (wasTimerRunningBeforeSyncOp) { 
+                    isTimerRunning = true;
+                    timerInterval = setInterval(mainLoop, 1000);
+                } 
+                return;
+            }
+            await releaseWakeLock(); // Снимаем блокировку при синхронизации, будет запрошена при Resume
+            gameTimeInSeconds = (minutes * 60) + seconds;
+            initializeEventStates(gameTimeInSeconds);
+            rebuildPastEventsLog(gameTimeInSeconds);
+            updateAllDisplays();
+            startButton.textContent = "Resume Timer"; 
+            console.log(`Timer Synced to: ${formatTime(gameTimeInSeconds)}`);
+        });
+        
+        function updateAllDisplays() {
+            updateTimerDisplay();
+            updateUpcomingEventsDisplay();
+            updatePastEventsLogDisplay();
+        }
+
+        // Initial setup
+        initializeEventStates(0);
+        updateAllDisplays();
+        updateNotificationButtonText(); // Initialize button text and status based on current permission
     </script>
 </body>
 </html>
