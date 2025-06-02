@@ -3,134 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dota 2 Таймер Событий</title>
+    <title>Dota 2 Таймер Событий v2</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             margin: 0;
-            padding: 20px;
-            background-color: #282c34;
-            color: white;
+            padding: 15px;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        .main-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+        .left-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .right-panel {
+            flex: 1;
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         #timerDisplay {
-            font-size: 3em;
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            color: #00aeff;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0,174,255,0.5);
+        }
+        .controls {
             margin-bottom: 20px;
-            color: #61dafb;
         }
         .controls button {
-            font-size: 1.2em;
-            padding: 10px 20px;
+            font-size: 1.1em;
+            padding: 10px 18px;
             margin: 5px;
             cursor: pointer;
             border: none;
             border-radius: 5px;
-            background-color: #61dafb;
-            color: #282c34;
-            transition: background-color 0.3s;
+            background-color: #00aeff;
+            color: #ffffff;
+            transition: background-color 0.2s ease-in-out;
         }
         .controls button:hover {
-            background-color: #21a1f1;
+            background-color: #007acc;
         }
-        #upcomingEvents {
-            margin-top: 30px;
-            width: 100%;
-            max-width: 600px;
-        }
-        #upcomingEvents h2 {
+        .section-title {
             text-align: center;
-            color: #61dafb;
+            color: #00aeff;
+            font-size: 1.5em;
+            margin-bottom: 10px;
         }
-        #upcomingEvents ul {
+        #upcomingEvents ul, #pastEventsLog ul {
             list-style: none;
             padding: 0;
         }
-        #upcomingEvents li {
-            background-color: #3c4049;
-            padding: 10px;
+        #upcomingEvents li, #pastEventsLog li {
+            background-color: #333333;
+            padding: 10px 12px;
             margin-bottom: 8px;
             border-radius: 4px;
+            font-size: 1.05em;
+            border-left: 4px solid #00aeff;
+        }
+        #pastEventsLog li {
+            border-left-color: #4caf50;
+            font-size: 0.95em;
+        }
+        #upcomingEvents li .event-details {
             display: flex;
             justify-content: space-between;
-            font-size: 1.1em;
+            align-items: center;
+            margin-bottom: 5px;
         }
-        #upcomingEvents li .event-name {
-            font-weight: bold;
+        .event-name { font-weight: bold; }
+        .event-time, .log-time { color: #b0b0b0; }
+        .progress-bar-container {
+            height: 8px;
+            background-color: #555;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
         }
-        #upcomingEvents li .event-time {
-            color: #a2a7b0;
+        .progress-bar {
+            height: 100%;
+            background-color: #00aeff;
+            width: 0%;
+            transition: width 0.5s linear;
         }
-        .alert-active {
-            background-color: #ffc107 !important;
-            color: black;
+        .alert-warning { /* Для события, по которому скоро будет предупреждение */
+            border-left-color: #ffc107 !important;
         }
-         /* Для мобильных устройств */
-        @media (max-width: 600px) {
-            #timerDisplay {
-                font-size: 2em;
+        .alert-event-now { /* Для события, которое наступает прямо сейчас */
+            border-left-color: #dc3545 !important;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { background-color: #e74c3c; }
+            50% { background-color: #c0392b; }
+            100% { background-color: #e74c3c; }
+        }
+
+        /* Scrollbar styles for right panel */
+        .right-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        .right-panel::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+        .right-panel::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 8px;
+        }
+        .right-panel::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
             }
-            .controls button {
-                font-size: 1em;
-                padding: 8px 15px;
+            .right-panel {
+                max-height: 40vh;
             }
-            #upcomingEvents li {
-                font-size: 1em;
-            }
+            #timerDisplay { font-size: 2.5em; }
         }
     </style>
 </head>
 <body>
-    <div id="timerDisplay">00:00</div>
-    <div class="controls">
-        <button id="startButton">Start Timer</button>
-        <button id="resetButton">Reset Timer</button>
+    <div class="main-container">
+        <div class="left-panel">
+            <div id="timerDisplay">00:00</div>
+            <div class="controls">
+                <button id="startButton">Start Timer</button>
+                <button id="resetButton">Reset Timer</button>
+            </div>
+
+            <div id="upcomingEvents" style="width:100%; max-width:600px;">
+                <h2 class="section-title">Ближайшие события</h2>
+                <ul id="eventsList"></ul>
+            </div>
+        </div>
+        <div class="right-panel">
+            <h2 class="section-title">Лог событий</h2>
+            <ul id="pastEventsLogList"></ul>
+        </div>
     </div>
 
-    <div id="upcomingEvents">
-        <h2>Ближайшие события</h2>
-        <ul id="eventsList">
-            </ul>
-    </div>
-
-    <audio id="alertSound" src="alert.mp3" preload="auto"></audio>
+    <audio id="warningSoundPlayer" src="warning_alert.mp3" preload="auto"></audio>
+    <audio id="eventNowSoundPlayer" src="event_now_alert.mp3" preload="auto"></audio>
 
     <script>
         const timerDisplay = document.getElementById('timerDisplay');
         const startButton = document.getElementById('startButton');
         const resetButton = document.getElementById('resetButton');
         const eventsList = document.getElementById('eventsList');
-        const alertSound = document.getElementById('alertSound');
+        const pastEventsLogList = document.getElementById('pastEventsLogList');
+        const warningSoundPlayer = document.getElementById('warningSoundPlayer');
+        const eventNowSoundPlayer = document.getElementById('eventNowSoundPlayer');
 
-        const ALERT_OFFSET_SECONDS = 15; // За сколько секунд до события давать сигнал
+        const ALERT_OFFSET_SECONDS = 15; // За сколько секунд до события давать предупреждение
+        const PROGRESS_WINDOW_SECONDS = 120; // За сколько секунд до события начинать показывать прогресс-бар
 
         let gameTimeInSeconds = 0;
         let timerInterval = null;
         let isTimerRunning = false;
-        let eventDefinitions = [];
+        let eventStates = [];
+        let pastEventsLog = [];
 
-        function getInitialEventDefinitions() {
+        function getInitialEventStates() {
+            // Звуки по умолчанию, если не указаны для конкретного события
+            const defaultWarningSound = "warning_alert.mp3";
+            const defaultEventNowSound = "event_now_alert.mp3";
+
             return [
                 // --- Руны ---
-                { name: "Начальные Руны Богатства", type: "bounty_initial", spawnTime: 0, alerted: false, isOneTime: true, category: "rune" },
-                { name: "Водные Руны", type: "water_runes", spawnTimes: [2 * 60, 4 * 60], alerted: [false, false], category: "rune" },
-                { name: "Руны Богатства (след.)", type: "bounty_repeating", firstSpawn: 3 * 60, interval: 3 * 60, nextSpawnTime: 3 * 60, alertedForNext: false, category: "rune" },
-                { name: "Руны Усиления", type: "power_runes", firstSpawn: 6 * 60, interval: 2 * 60, nextSpawnTime: 6 * 60, alertedForNext: false, category: "rune" },
-                { name: "Руны Мудрости", type: "wisdom_runes", firstSpawn: 7 * 60, interval: 7 * 60, nextSpawnTime: 7 * 60, alertedForNext: false, category: "rune" },
+                { name: "Начальные Руны Богатства", type: "bounty_initial", spawnTime: 0, alertedWarning: false, alertedEvent: false, isOneTime: true, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Водные Руны", type: "water_runes", spawnTimes: [2 * 60, 4 * 60], alertedWarning: [false, false], alertedEvent: [false, false], category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Руны Богатства", type: "bounty_repeating", firstSpawn: 3 * 60, interval: 3 * 60, nextSpawnTime: 3 * 60, alertedWarning: false, alertedEvent: false, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Руны Усиления", type: "power_runes", firstSpawn: 6 * 60, interval: 2 * 60, nextSpawnTime: 6 * 60, alertedWarning: false, alertedEvent: false, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Руны Мудрости", type: "wisdom_runes", firstSpawn: 7 * 60, interval: 7 * 60, nextSpawnTime: 7 * 60, alertedWarning: false, alertedEvent: false, category: "rune", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
                 // --- Крипы ---
-                { name: "Катапульты", type: "siege_creeps", firstSpawn: 5 * 60, interval: 2.5 * 60, nextSpawnTime: 5 * 60, alertedForNext: false, category: "creep" },
+                { name: "Катапульты", type: "siege_creeps", firstSpawn: 5 * 60, interval: 2.5 * 60, nextSpawnTime: 5 * 60, alertedWarning: false, alertedEvent: false, category: "creep", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
                 // --- Объекты и Боссы ---
-                { name: "Лотосы (первый)", type: "lotus_pool", firstSpawn: 3 * 60, interval: 3 * 60, nextSpawnTime: 3 * 60, alertedForNext: false, category: "object" },
-                { name: "Терзатель (первый)", type: "tormentor", spawnTime: 20 * 60, alerted: false, isOneTime: true, category: "boss" },
+                { name: "Лотосы", type: "lotus_pool", firstSpawn: 3 * 60, interval: 3 * 60, nextSpawnTime: 3 * 60, alertedWarning: false, alertedEvent: false, category: "object", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Терзатель (первый)", type: "tormentor", spawnTime: 20 * 60, alertedWarning: false, alertedEvent: false, isOneTime: true, category: "boss", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
                 // --- Игровые циклы ---
-                { name: "Наступление Ночи", type: "night_cycle", firstSpawn: 4 * 60, interval: 8 * 60, nextSpawnTime: 4 * 60, alertedForNext: false, category: "cycle" },
-                { name: "Наступление Дня", type: "day_cycle", firstSpawn: 8 * 60, interval: 8 * 60, nextSpawnTime: 8 * 60, alertedForNext: false, category: "cycle" },
-                // Можно добавить сюда:
-                // { name: "Стак нейтралов (напом.)", type: "stack_reminder", firstSpawn: 50, interval: 60, nextSpawnTime: 50, alertedForNext: false, category: "neutral" }, // Напоминание на X:50
+                { name: "Наступление Ночи", type: "night_cycle", firstSpawn: 4 * 60, interval: 8 * 60, nextSpawnTime: 4 * 60, alertedWarning: false, alertedEvent: false, category: "cycle", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
+                { name: "Наступление Дня", type: "day_cycle", firstSpawn: 8 * 60, interval: 8 * 60, nextSpawnTime: 8 * 60, alertedWarning: false, alertedEvent: false, category: "cycle", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
             ];
         }
-
 
         function formatTime(totalSeconds) {
             const minutes = Math.floor(totalSeconds / 60);
@@ -142,33 +217,71 @@
             timerDisplay.textContent = formatTime(gameTimeInSeconds);
         }
 
-        function playAlert(eventName) {
-            console.log(`ALERT: ${eventName} in ${ALERT_OFFSET_SECONDS} seconds!`);
-            alertSound.play().catch(error => console.error("Audio play failed:", error));
+        function playSound(player, soundSrc, eventNameForLog) {
+            if (player.src !== soundSrc) player.src = soundSrc; // На случай если захотите разные звуки для разных событий
+            player.play().catch(error => console.error(`Audio play failed for ${eventNameForLog}:`, error));
+        }
+
+        function addToLog(eventName, time) {
+            pastEventsLog.unshift({ name: eventName, time: formatTime(time) }); // Добавляем в начало
+            if (pastEventsLog.length > 50) pastEventsLog.pop(); // Ограничиваем размер лога
+            updatePastEventsLogDisplay();
+        }
+
+        function updatePastEventsLogDisplay() {
+            pastEventsLogList.innerHTML = '';
+            pastEventsLog.forEach(logEntry => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span class="event-name">${logEntry.name}</span> <span class="log-time">(${logEntry.time})</span>`;
+                pastEventsLogList.appendChild(listItem);
+            });
         }
 
         function checkAndTriggerAlerts() {
-            eventDefinitions.forEach(event => {
+            eventStates.forEach(event => {
                 if (event.isOneTime) {
-                    if (!event.alerted && gameTimeInSeconds >= event.spawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < event.spawnTime) {
-                        playAlert(event.name);
-                        event.alerted = true;
+                    // Предупреждение
+                    if (!event.alertedWarning && gameTimeInSeconds >= event.spawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < event.spawnTime) {
+                        playSound(warningSoundPlayer, event.warningSound, event.name + " Warning");
+                        event.alertedWarning = true;
                     }
-                } else if (event.spawnTimes) { // For events with a fixed list of spawn times (e.g., Water Runes)
+                    // Само событие
+                    if (!event.alertedEvent && gameTimeInSeconds >= event.spawnTime) {
+                        playSound(eventNowSoundPlayer, event.eventSound, event.name + " Event Now");
+                        addToLog(event.name, event.spawnTime);
+                        event.alertedEvent = true; // Больше не обрабатывать это одноразовое событие
+                    }
+                } else if (event.spawnTimes) { // Для событий с фиксированным списком (Водные руны)
                     event.spawnTimes.forEach((spawnTime, index) => {
-                        if (!event.alerted[index] && gameTimeInSeconds >= spawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < spawnTime) {
-                            playAlert(`${event.name} (${formatTime(spawnTime)})`);
-                            event.alerted[index] = true;
+                        // Предупреждение
+                        if (!event.alertedWarning[index] && gameTimeInSeconds >= spawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < spawnTime) {
+                            playSound(warningSoundPlayer, event.warningSound, `${event.name} #${index + 1} Warning`);
+                            event.alertedWarning[index] = true;
+                        }
+                        // Само событие
+                        if (!event.alertedEvent[index] && gameTimeInSeconds >= spawnTime) {
+                            playSound(eventNowSoundPlayer, event.eventSound, `${event.name} #${index + 1} Event Now`);
+                            addToLog(`${event.name} (${formatTime(spawnTime)})`, spawnTime);
+                            event.alertedEvent[index] = true;
                         }
                     });
-                } else { // For repeating events
-                    if (!event.alertedForNext && gameTimeInSeconds >= event.nextSpawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < event.nextSpawnTime) {
-                        playAlert(event.name);
-                        event.alertedForNext = true;
+                } else { // Для повторяющихся событий
+                    // Предупреждение
+                    if (!event.alertedWarning && gameTimeInSeconds >= event.nextSpawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < event.nextSpawnTime) {
+                        playSound(warningSoundPlayer, event.warningSound, event.name + " Warning");
+                        event.alertedWarning = true;
                     }
+                    // Само событие
                     if (gameTimeInSeconds >= event.nextSpawnTime) {
+                        if (!event.alertedEvent) { // Проверяем, чтобы событие и лог сработали один раз для текущего nextSpawnTime
+                           playSound(eventNowSoundPlayer, event.eventSound, event.name + " Event Now");
+                           addToLog(event.name, event.nextSpawnTime);
+                           event.alertedEvent = true; // Отмечаем, что это конкретное событие обработано
+                        }
+                        // Готовимся к следующему появлению
                         event.nextSpawnTime += event.interval;
-                        event.alertedForNext = false;
+                        event.alertedWarning = false;
+                        event.alertedEvent = false; // Сбрасываем флаги для СЛЕДУЮЩЕГО события
                     }
                 }
             });
@@ -177,73 +290,99 @@
 
         function updateUpcomingEventsDisplay() {
             const upcoming = [];
-            const displayLimitSeconds = gameTimeInSeconds + 10 * 60; // Показать события на ближайшие 10 минут
+            const displayLimitFutureSeconds = gameTimeInSeconds + 15 * 60; // Показать события на ближайшие 15 минут
 
-            eventDefinitions.forEach(event => {
-                if (event.isOneTime) {
-                    if (gameTimeInSeconds < event.spawnTime && event.spawnTime <= displayLimitSeconds) {
-                        upcoming.push({ name: event.name, time: event.spawnTime });
+            eventStates.forEach(event => {
+                if (event.isOneTime && !event.alertedEvent && gameTimeInSeconds < event.spawnTime) {
+                    if (event.spawnTime <= displayLimitFutureSeconds) {
+                        upcoming.push({ name: event.name, time: event.spawnTime, alertedWarning: event.alertedWarning });
                     }
                 } else if (event.spawnTimes) {
                      event.spawnTimes.forEach((spawnTime, index) => {
-                        if (gameTimeInSeconds < spawnTime && spawnTime <= displayLimitSeconds && !event.alerted[index]) {
-                             upcoming.push({ name: `${event.name}`, time: spawnTime });
+                        if (!event.alertedEvent[index] && gameTimeInSeconds < spawnTime && spawnTime <= displayLimitFutureSeconds) {
+                             upcoming.push({ name: `${event.name}`, time: spawnTime, alertedWarning: event.alertedWarning[index] });
                         }
                     });
-                } else { // Repeating events
-                    if (event.nextSpawnTime <= displayLimitSeconds) {
-                        upcoming.push({ name: event.name, time: event.nextSpawnTime });
-                         // Показать и следующий, если он тоже скоро
-                        const nextNextSpawn = event.nextSpawnTime + event.interval;
-                        if (event.name.includes("Руны") && nextNextSpawn <= displayLimitSeconds && nextNextSpawn !== event.nextSpawnTime) {
-                             // upcoming.push({ name: `${event.name} (след.)`, time: nextNextSpawn });
-                        }
+                } else if (!event.isOneTime && !event.spawnTimes) { // Repeating events
+                    if (event.nextSpawnTime <= displayLimitFutureSeconds) {
+                        upcoming.push({ name: event.name, time: event.nextSpawnTime, alertedWarning: event.alertedWarning });
                     }
                 }
             });
 
             upcoming.sort((a, b) => a.time - b.time);
 
-            eventsList.innerHTML = ''; // Очистить список
+            eventsList.innerHTML = '';
             const maxEventsToShow = 7;
             upcoming.slice(0, maxEventsToShow).forEach(e => {
                 const listItem = document.createElement('li');
-                const timeRemaining = e.time - gameTimeInSeconds;
-                const isAlerting = timeRemaining <= ALERT_OFFSET_SECONDS && timeRemaining > 0;
+                const timeToSpawn = e.time - gameTimeInSeconds;
+
+                let progressBarHtml = '';
+                if (timeToSpawn <= PROGRESS_WINDOW_SECONDS && timeToSpawn > 0) {
+                    const elapsedInWindow = PROGRESS_WINDOW_SECONDS - timeToSpawn;
+                    const progressPercent = Math.min(100, Math.max(0, (elapsedInWindow / PROGRESS_WINDOW_SECONDS) * 100));
+                    progressBarHtml = `
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+                        </div>`;
+                }
 
                 listItem.innerHTML = `
-                    <span class="event-name">${e.name}</span>
-                    <span class="event-time">через ${formatTime(timeRemaining)} (в ${formatTime(e.time)})</span>
+                    <div class="event-details">
+                        <span class="event-name">${e.name}</span>
+                        <span class="event-time">через ${formatTime(timeToSpawn)} (в ${formatTime(e.time)})</span>
+                    </div>
+                    ${progressBarHtml}
                 `;
-                if (isAlerting) {
-                    listItem.classList.add('alert-active');
+
+                if (timeToSpawn <= 0 && timeToSpawn > -ALERT_OFFSET_SECONDS) { // Событие наступает сейчас
+                    listItem.classList.add('alert-event-now');
+                } else if (e.alertedWarning && timeToSpawn > 0 && timeToSpawn <= ALERT_OFFSET_SECONDS) { // Предупреждение активно
+                     listItem.classList.add('alert-warning');
                 }
+
+
                 eventsList.appendChild(listItem);
             });
-             if (upcoming.length === 0 && isTimerRunning) {
-                eventsList.innerHTML = '<li>Нет ближайших событий в следующие 10 минут.</li>';
+
+            if (upcoming.length === 0 && isTimerRunning) {
+                eventsList.innerHTML = '<li>Нет ожидаемых событий в ближайшее время.</li>';
             } else if (!isTimerRunning && gameTimeInSeconds === 0) {
                 eventsList.innerHTML = '<li>Таймер не запущен.</li>';
             }
         }
 
-
         function mainLoop() {
             gameTimeInSeconds++;
             updateTimerDisplay();
-            checkAndTriggerAlerts();
+            checkAndTriggerAlerts(); // Проверка и триггеры должны быть до обновления отображения списка
+        }
+
+        function attemptInitialSoundUnlock() {
+             // Для "разблокировки" аудио на мобильных при первом взаимодействии
+            const promise1 = warningSoundPlayer.play();
+            if (promise1 !== undefined) {
+                promise1.then(_ => warningSoundPlayer.pause()).catch(error => {});
+            }
+            const promise2 = eventNowSoundPlayer.play();
+            if (promise2 !== undefined) {
+                promise2.then(_ => eventNowSoundPlayer.pause()).catch(error => {});
+            }
         }
 
         startButton.addEventListener('click', () => {
-            if (!isTimerRunning) {
-                // Попытка воспроизвести звук для "разблокировки" аудио на мобильных
-                alertSound.play().then(() => alertSound.pause()).catch(()=>{});
+            attemptInitialSoundUnlock();
 
+            if (!isTimerRunning) {
                 isTimerRunning = true;
-                eventDefinitions = getInitialEventDefinitions(); // Сброс состояний событий
-                gameTimeInSeconds = 0; // Можно изменить, если нужен старт с другого времени
+                if (gameTimeInSeconds === 0) { // Только если это полный старт, а не продолжение
+                    eventStates = getInitialEventStates();
+                    pastEventsLog = [];
+                    updatePastEventsLogDisplay();
+                }
                 updateTimerDisplay();
-                updateUpcomingEventsDisplay(); // Обновить сразу при старте
+                updateUpcomingEventsDisplay();
                 timerInterval = setInterval(mainLoop, 1000);
                 startButton.textContent = "Pause Timer";
             } else {
@@ -254,19 +393,24 @@
         });
 
         resetButton.addEventListener('click', () => {
+            attemptInitialSoundUnlock();
             isTimerRunning = false;
             clearInterval(timerInterval);
             gameTimeInSeconds = 0;
-            eventDefinitions = getInitialEventDefinitions(); // Сброс состояний событий
+            eventStates = getInitialEventStates();
+            pastEventsLog = [];
             updateTimerDisplay();
             updateUpcomingEventsDisplay();
+            updatePastEventsLogDisplay();
             startButton.textContent = "Start Timer";
             console.log("Timer Reset.");
         });
 
-        // Инициализация отображения
+        // Инициализация отображения при загрузке
+        eventStates = getInitialEventStates();
         updateTimerDisplay();
         updateUpcomingEventsDisplay();
+        updatePastEventsLogDisplay();
     </script>
 </body>
 </html>
