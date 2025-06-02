@@ -74,8 +74,8 @@
             border: none; border-radius: 5px; color: #ffffff;
             transition: background-color 0.2s ease-in-out;
         }
-        .main-controls button, #lockScreenToggle { background-color: var(--accent-color); }
-        .main-controls button:hover, #lockScreenToggle:hover { background-color: var(--accent-hover-color); }
+        .main-controls button, #ScreenToggle { background-color: var(--accent-color); }
+        .main-controls button:hover, #ScreenToggle:hover { background-color: var(--accent-hover-color); }
         .time-sync-controls button { background-color: var(--positive-color); }
         .time-sync-controls button:hover { background-color: var(--positive-hover-color); }
         .notification-controls button { background-color: var(--warning-color); color: #1e1e1e; }
@@ -152,7 +152,7 @@
         }
         @media (max-height: 550px) and (orientation: landscape) and (max-width: 900px) { 
             .app-wrapper { padding: 5px; }
-            body:not(.horizontal-lockscreen-mode) { font-size: 12.5px; } /* Не применять если LockScreen активен */
+            body:not(.horizontal-screen-mode) { font-size: 12.5px; } /* Не применять если Screen активен */
             .main-container { gap: 8px; }
             .left-panel { flex: 3; }
             .right-panel { flex: 1.8; font-size: 0.8em; padding: 8px; }
@@ -161,27 +161,31 @@
             .control-group input[type="number"] { width: 38px; padding: 5px; font-size: 0.85em;}
             .section-title { font-size: 1.2em; }
             #upcomingEvents li { padding: 6px 8px; font-size: 0.95em; }
-            #dynamicRecentEventsContainer { display: block; order: 3; }
+            #dynamicRecentEventsContainer { display: b; order: 3; }
             .right-panel { max-height: calc(100vh - 20px); }
         }
         @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
-            body:not(.horizontal-lockscreen-mode) { font-size: 13.5px; }
+            body:not(.horizontal-screen-mode) { font-size: 13.5px; }
             .left-panel { flex: 2.2; }
             .right-panel { flex: 1.8; }
             #dynamicRecentEventsContainer { display: none; } 
         }
 
-        /* --- LOCKSCREEN РЕЖИМ --- */
-        body.horizontal-lockscreen-mode { font-size: 16px; }
+/* --- LOCKSCREEN РЕЖИМ --- */
+        body.horizontal-lockscreen-mode {
+            font-size: 16px; 
+        }
         body.horizontal-lockscreen-mode .app-wrapper {
             padding: 0; overflow: hidden; 
         }
         body.horizontal-lockscreen-mode .main-container {
             flex-direction: column; height: 100%; width: 100%;
-            padding: 2vh 2vw; gap: 1.5vh;
+            padding: 1.5vh 2vw; /* Немного уменьшим общие отступы для большего контента */
+            gap: 1vh; /* Уменьшим гэп */
             justify-content: space-between; box-sizing: border-box;
             background-color: #000; 
         }
+        /* ... (скрытие элементов остается как было) ... */
         body.horizontal-lockscreen-mode .controls-column,
         body.horizontal-lockscreen-mode .right-panel, 
         body.horizontal-lockscreen-mode #wakeLockStatus,
@@ -190,73 +194,63 @@
         body.horizontal-lockscreen-mode #lockScreenToggle { 
             display: none !important;
         }
+
         body.horizontal-lockscreen-mode .left-panel {
             flex: 1; width: 100%;
             justify-content: flex-start; align-items: center;
-            overflow: hidden; gap: 2vh;
+            overflow: hidden; gap: 1.5vh; /* Уменьшим гэп */
         }
         body.horizontal-lockscreen-mode #timerDisplay {
-            font-size: min(12vh, 13vw); line-height: 1; /* Увеличено для лучшей читаемости */
-            margin-bottom: 1vh; flex-shrink: 0; 
+            font-size: min(8vh, 9vw); /* УМЕНЬШЕНО: было min(12vh, 13vw) */
+            line-height: 1;
+            margin-bottom: 1vh; 
+            flex-shrink: 0; 
         }
         body.horizontal-lockscreen-mode #upcomingEvents {
             width: 100%; max-width: none; flex-grow: 1;
             overflow-y: hidden; 
             display: flex; flex-direction: column; justify-content: space-around;
-            max-height: 55vh; /* Ограничим высоту, чтобы поместился и блок недавних */
+            max-height: 50vh; /* Скорректируем высоту, чтобы дать место недавним */
         }
-        body.horizontal-lockscreen-mode #upcomingEvents ul {
-            display: flex; flex-direction: column; height: 100%;
-            justify-content: space-around; 
-        }
+        /* ... (стили для #upcomingEvents ul и li остаются почти те же, можно чуть увеличить шрифт) ... */
         body.horizontal-lockscreen-mode #upcomingEvents li {
-            padding: 1.5vh 2vw; font-size: min(3.2vh, 3vw); /* Увеличен шрифт событий */
+            padding: 1.5vh 2vw; font-size: min(3.3vh, 3.1vw); /* Можно чуть увеличить */
+            /* ... остальное без изменений ... */
             border-left-width: 5px; flex-grow: 1; margin-bottom: 1vh; 
             display: flex; flex-direction: column; justify-content: center;
         }
-        body.horizontal-lockscreen-mode #upcomingEvents li:last-child { margin-bottom: 0; }
-        body.horizontal-lockscreen-mode #upcomingEvents li .event-details {
-             flex-direction: column; align-items: flex-start; gap: 0.5vh;
+         body.horizontal-lockscreen-mode #upcomingEvents li .progress-bar-container {
+            height: 2.2vh; /* Прогресс-бар еще заметнее */
+            border-radius: 1.1vh; margin-top: 1vh;
         }
-        body.horizontal-lockscreen-mode #upcomingEvents li .event-name { font-size: 1em; }
-        body.horizontal-lockscreen-mode #upcomingEvents li .event-time { font-size: 0.8em; }
-        body.horizontal-lockscreen-mode #upcomingEvents li .progress-bar-container {
-            height: 2vh; /* Большой прогресс-бар */
-            border-radius: 1vh; margin-top: 1vh;
-        }
+
+
         body.horizontal-lockscreen-mode #dynamicRecentEventsContainer {
             display: block !important; width: 100%;
-            padding: 1vh 1.5vw; font-size: min(2.5vh, 2.2vw); /* Увеличен шрифт */
-            background-color: #111; border-top: 1px solid #333;
-            flex-shrink: 0; max-height: 28vh; /* Немного больше места недавним */
+            padding: 1.5vh 1.5vw; /* УВЕЛИЧЕНО */
+            font-size: min(3vh, 2.8vw); /* УВЕЛИЧЕНО */
+            background-color: #181818; /* Чуть светлее для акцента */
+            border-top: 1px solid #444;
+            flex-shrink: 0; 
+            max-height: 30vh; /* УВЕЛИЧЕНО, чтобы вместить более крупные элементы */
             overflow-y: auto;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsContainer .section-title {
-            display: block; font-size: 0.9em; margin-bottom: 0.5vh; color: #ccc;
+            display: block; font-size: 0.8em; /* Относительно родителя, т.е. min(3vh, 2.8vw) * 0.8 */
+            margin-bottom: 0.8vh; color: #ddd;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsList li {
-            padding: 0.8vh 1vw; font-size: 1em; 
+            padding: 1vh 1.5vw; /* УВЕЛИЧЕНО */
+            font-size: 1em; /* Относительно родителя */
+            background-color: #282828; /* Немного изменим фон для лучшего контраста */
+            margin-bottom: 0.8vh;
         }
-        body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-timeout { display: inline; }
-        
-        #exitLockScreenButton { 
-            display: none; /* Скрыта по умолчанию */
-            position: fixed; 
-            top: 15px; 
-            right: 15px; 
-            z-index: 20000; /* Выше всего */
-            padding: 10px 15px; 
-            background-color: var(--exit-button-bg); 
-            color: white; 
-            border: none; border-radius: 50%; /* Сделаем круглой */
-            font-size: 1.2em; /* Или иконка */
-            width: 45px; height: 45px;
-            line-height: 45px; text-align: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            cursor: pointer;
+        body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-meta {
+            font-size: 0.9em; /* УВЕЛИЧЕНО */
         }
-        #exitLockScreenButton:hover {
-            background-color: var(--exit-button-hover-bg);
+        body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-timeout { 
+            display: inline;
+            font-size: 0.85em; /* УВЕЛИЧЕНО */
         }
     </style>
 </head>
