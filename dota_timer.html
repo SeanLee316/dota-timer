@@ -5,28 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Dota 2 Таймер (Offline Ready)</title>
+    <title>Dota 2 Таймер - Стиль Игры</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- ОБЩИЕ СТИЛИ --- */
+        /* --- DOTA 2 THEME STYLES --- */
         :root {
-            --bg-color: #1c1c1e;
-            --panel-bg-color: #2a2a2a;
-            --text-color: #e0e0e0;
-            --accent-color: #00aeff;
-            --accent-hover-color: #007acc;
-            --warning-color: #ffc107;
-            --event-now-color: #dc3545;
-            --positive-color: #5cb85c;
-            --positive-hover-color: #4cae4c;
-            --exit-button-bg: rgba(220, 53, 69, 0.8);
-            --exit-button-hover-bg: rgba(200, 30, 40, 1);
+            --d2-bg-dark: #18181b; /* Очень темный фон, почти черный */
+            --d2-bg-panel: #22252a; /* Фон панелей, темный серо-синий */
+            --d2-bg-panel-light: #2e3238;
+            --d2-border-color: #4a505a; /* Цвет рамок */
+            --d2-border-highlight: #7a828e;
+            --d2-text-primary: #c5c5c5; /* Основной текст, светло-серый */
+            --d2-text-secondary: #8b8f98; /* Вторичный текст */
+            --d2-text-title: #e0b469; /* Золотистый для заголовков/акцентов */
+            --d2-accent-red: #c53630; /* Красный акцент Dota 2 */
+            --d2-accent-red-glow: rgba(255, 80, 70, 0.7);
+            --d2-accent-blue: #589ad2; /* Синий акцент (Radiant) */
+            --d2-accent-green: #70a843; /* Зеленый для позитивных действий */
+            --d2-accent-yellow: #f2d06b; /* Желтый для предупреждений */
+            --d2-font-title: 'Cinzel', serif;
+            --d2-font-body: 'Roboto Condensed', sans-serif;
+            --d2-button-bg: linear-gradient(180deg, #3a3f47 0%, #2c3036 100%);
+            --d2-button-border: #50555e;
+            --d2-button-hover-bg: linear-gradient(180deg, #4a4f57 0%, #3c4046 100%);
+            --d2-progress-bar-bg: #1a1c1f;
+            --d2-progress-bar-fill: var(--d2-accent-blue);
+            --d2-progress-bar-warning-fill: var(--d2-accent-yellow);
+            --d2-progress-bar-event-now-fill: var(--d2-accent-red);
         }
+
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow: hidden; 
-            background-color: var(--bg-color); color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--d2-bg-dark); color: var(--d2-text-primary);
+            font-family: var(--d2-font-body);
             font-size: 14px;
             -webkit-tap-highlight-color: transparent;
         }
@@ -34,220 +49,327 @@
             display: flex; flex-direction: column; align-items: center;
             width: 100%; height: 100%; padding: 10px;
             box-sizing: border-box; overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--d2-border-highlight) var(--d2-bg-panel);
         }
+        .app-wrapper::-webkit-scrollbar { width: 8px; }
+        .app-wrapper::-webkit-scrollbar-track { background: var(--d2-bg-panel); }
+        .app-wrapper::-webkit-scrollbar-thumb { background-color: var(--d2-border-highlight); border-radius: 4px; border: 2px solid var(--d2-bg-panel); }
+
         .main-container {
             display: flex; flex-direction: row; width: 100%;
-            max-width: 1300px; gap: 15px; flex-grow: 1; min-height: 0;
+            max-width: 1400px; /* Немного шире для нового стиля */
+            gap: 20px; flex-grow: 1; min-height: 0;
         }
         .left-panel, .right-panel {
             display: flex; flex-direction: column; min-width: 0; overflow: hidden;
+            background-color: var(--d2-bg-panel);
+            border: 1px solid var(--d2-border-color);
+            border-radius: 6px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3), inset 0 0 5px rgba(0,0,0,0.2);
         }
-        .left-panel { flex: 2.5; align-items: center; }
+        .left-panel { flex: 2.5; align-items: center; padding: 15px; }
         .right-panel {
-            flex: 1.5; background-color: var(--panel-bg-color);
-            padding: 10px 12px; border-radius: 8px; overflow-y: auto;
+            flex: 1.5; padding: 15px; overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--d2-border-highlight) var(--d2-bg-panel-light);
         }
+        .right-panel::-webkit-scrollbar { width: 6px; }
+        .right-panel::-webkit-scrollbar-track { background: var(--d2-bg-panel-light); }
+        .right-panel::-webkit-scrollbar-thumb { background-color: var(--d2-border-highlight); border-radius: 3px; }
+        
         #timerDisplay {
-            font-size: 3.2em; margin-bottom: 8px; color: var(--accent-color);
-            font-weight: bold; text-shadow: 0 0 5px rgba(0,174,255,0.5);
+            font-family: var(--d2-font-title);
+            font-size: 4em; /* Крупнее */
+            margin-bottom: 15px; color: var(--d2-text-title);
+            font-weight: 700; 
+            text-shadow: 0 0 8px var(--d2-text-title), 0 0 12px var(--d2-text-title);
             text-align: center;
+            letter-spacing: 1px;
         }
         .controls-column {
-            display: flex; flex-direction: column; align-items: center;
-            gap: 8px; margin-bottom: 12px; width: 100%;
+            display: flex; flex-direction: column; align-items: stretch; /* Растянуть группы кнопок */
+            gap: 10px; margin-bottom: 15px; width: 100%; max-width: 500px;
         }
         .control-group {
-            display: flex; align-items: center; gap: 8px;
-            background-color: var(--panel-bg-color);
-            padding: 8px; border-radius: 5px;
+            display: flex; align-items: center; gap: 10px;
+            background-color: var(--d2-bg-panel-light);
+            padding: 10px; border-radius: 4px;
             flex-wrap: wrap; justify-content: center;
-            width: calc(100% - 16px); box-sizing: border-box;
+            border: 1px solid var(--d2-border-color);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
         }
         .control-group input[type="number"] {
-            width: 45px; padding: 7px; font-size: 0.95em; text-align: center;
-            border: 1px solid #444; background-color: #333; color: var(--text-color);
+            width: 50px; padding: 8px; font-size: 1em; text-align: center;
+            border: 1px solid var(--d2-border-highlight); background-color: var(--d2-bg-dark); 
+            color: var(--d2-text-primary);
             border-radius: 3px; -moz-appearance: textfield;
+            font-family: var(--d2-font-body);
         }
         .control-group input[type="number"]::-webkit-outer-spin-button,
         .control-group input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none; margin: 0;
         }
-        .control-group span { font-size: 1.1em; color: var(--accent-color); }
+        .control-group span { font-size: 1.2em; color: var(--d2-text-title); }
         .control-group button {
-            font-size: 0.95em; padding: 7px 12px; cursor: pointer;
-            border: none; border-radius: 5px; color: #ffffff;
-            transition: background-color 0.2s ease-in-out;
+            font-family: var(--d2-font-body);
+            font-weight: bold;
+            font-size: 0.9em; padding: 8px 15px; cursor: pointer;
+            border: 1px solid var(--d2-button-border);
+            border-top-color: #60656e; /* Светлее верхняя грань для объема */
+            border-radius: 4px; color: var(--d2-text-primary);
+            background: var(--d2-button-bg);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: all 0.15s ease-out;
+            flex-grow: 1; /* Кнопки занимают доступное место в группе */
         }
-        .main-controls button, #lockScreenToggle { background-color: var(--accent-color); }
-        .main-controls button:hover, #lockScreenToggle:hover { background-color: var(--accent-hover-color); }
-        .time-sync-controls button { background-color: var(--positive-color); }
-        .time-sync-controls button:hover { background-color: var(--positive-hover-color); }
-        .notification-controls button { background-color: var(--warning-color); color: #1e1e1e; }
-        .notification-controls button:hover { background-color: #e0a800; }
+        .control-group button:hover {
+            background: var(--d2-button-hover-bg);
+            border-color: var(--d2-border-highlight);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        .control-group button:active {
+            transform: translateY(0px);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+        }
+        #lockScreenToggle { background: linear-gradient(180deg, #4a505a 0%, #3c4046 100%); }
+        #lockScreenToggle:hover { background: linear-gradient(180deg, #5a606a 0%, #4c5056 100%); }
+        .time-sync-controls button { background: linear-gradient(180deg, var(--d2-accent-green) 0%, color-mix(in srgb, var(--d2-accent-green) 70%, black) 100%); }
+        .time-sync-controls button:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--d2-accent-green) 120%, white) 0%, var(--d2-accent-green) 100%);}
+        .notification-controls button { background: linear-gradient(180deg, var(--d2-accent-yellow) 0%, color-mix(in srgb, var(--d2-accent-yellow) 70%, black) 100%); color: #33280c; }
+        .notification-controls button:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--d2-accent-yellow) 120%, white) 0%, var(--d2-accent-yellow) 100%);}
+        .gemini-controls button { background: linear-gradient(180deg, #7b1fa2 0%, #5a1879 100%); }
+        .gemini-controls button:hover { background: linear-gradient(180deg, #8e24aa 0%, #6a1b9a 100%); }
 
         .section-title {
-            text-align: center; color: var(--accent-color);
-            font-size: 1.4em; margin-bottom: 8px;
+            font-family: var(--d2-font-title);
+            text-align: center; color: var(--d2-text-title);
+            font-size: 1.6em; margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px var(--d2-text-title);
         }
-        #upcomingEvents { width:100%; max-width: 600px; overflow-y: auto; flex-shrink: 1; }
+        #upcomingEvents { width:100%; max-width: 600px; overflow-y: auto; flex-shrink: 1; 
+            padding-right: 5px; /* Место для скроллбара */
+            scrollbar-width: thin;
+            scrollbar-color: var(--d2-border-highlight) var(--d2-bg-panel);
+        }
+        #upcomingEvents::-webkit-scrollbar { width: 6px; }
+        #upcomingEvents::-webkit-scrollbar-track { background: var(--d2-bg-panel); }
+        #upcomingEvents::-webkit-scrollbar-thumb { background-color: var(--d2-border-highlight); border-radius: 3px; }
+
         #upcomingEvents ul, #pastEventsLog ul, #dynamicRecentEventsList ul {
             list-style: none; padding: 0; margin:0;
         }
-        #upcomingEvents li, #pastEventsLog li, #dynamicRecentEventsList li {
-            background-color: #333333; padding: 8px 10px; margin-bottom: 6px;
+        #upcomingEvents li, #dynamicRecentEventsList li {
+            background-color: var(--d2-bg-panel-light); 
+            padding: 10px 12px; margin-bottom: 8px;
             border-radius: 4px; font-size: 1em; 
-            border-left: 3px solid var(--accent-color);
+            border: 1px solid var(--d2-border-color);
+            border-left: 4px solid var(--d2-accent-blue);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
         }
-        #pastEventsLog li { border-left-color: var(--positive-color); font-size: 0.9em; }
+        #upcomingEvents li:hover, #dynamicRecentEventsList li:hover {
+            transform: translateX(3px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        #pastEventsLog li { 
+            background-color: transparent;
+            border: none;
+            border-bottom: 1px dashed var(--d2-border-color);
+            padding: 6px 0; 
+            font-size: 0.9em; 
+            color: var(--d2-text-secondary);
+        }
+        #pastEventsLog li:last-child { border-bottom: none; }
+
         #upcomingEvents li .event-details {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
-        .event-name { font-weight: bold; }
-        .event-time, .log-time { color: #b0b0b0; font-size:0.95em; }
+        .event-name { font-weight: bold; color: var(--d2-text-primary); }
+        .event-time, .log-time { color: var(--d2-text-secondary); font-size:0.9em; }
         .progress-bar-container {
-            height: 10px; background-color: #555; border-radius: 5px;
-            overflow: hidden; margin-top: 5px;
+            height: 12px; background-color: var(--d2-progress-bar-bg); border-radius: 6px;
+            overflow: hidden; margin-top: 6px;
+            border: 1px solid #111;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
         }
         .progress-bar {
-            height: 100%; background-color: var(--accent-color); width: 0%;
+            height: 100%; background-color: var(--d2-progress-bar-fill); width: 0%;
             transition: width 0.5s linear;
+            box-shadow: inset 0 -1px 1px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1);
+            border-radius: 5px;
         }
-        .alert-warning { border-left-color: var(--warning-color) !important; }
+        .alert-warning { border-left-color: var(--d2-accent-yellow) !important; }
+        .alert-warning .progress-bar { background-color: var(--d2-progress-bar-warning-fill) !important; }
         .alert-event-now {
-            border-left-color: var(--event-now-color) !important;
-            animation: pulse 0.8s infinite alternate;
+            border-left-color: var(--d2-accent-red) !important;
+            animation: pulse-border 0.8s infinite alternate;
         }
-        @keyframes pulse {
-            0% { background-color: rgba(220, 53, 69, 0.4); }
-            100% { background-color: rgba(220, 53, 69, 0.15); }
+        .alert-event-now .progress-bar { background-color: var(--d2-progress-bar-event-now-fill) !important; }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 5px var(--d2-accent-red-glow), 0 1px 2px rgba(0,0,0,0.2); }
+            100% { box-shadow: 0 0 10px var(--d2-accent-red-glow), 0 0 15px var(--d2-accent-red-glow), 0 1px 2px rgba(0,0,0,0.2); }
         }
-        .right-panel::-webkit-scrollbar { width: 6px; }
-        .right-panel::-webkit-scrollbar-track { background: var(--panel-bg-color); border-radius: 6px; }
-        .right-panel::-webkit-scrollbar-thumb { background: #555; border-radius: 6px; }
-        .right-panel::-webkit-scrollbar-thumb:hover { background: #777; }
+        
         .status-messages {
-            font-size: 0.8em; color: #aaa; margin-top: 4px;
-            text-align: center; min-height: 1em; width: 100%;
+            font-size: 0.85em; color: var(--d2-text-secondary); margin-top: 6px;
+            text-align: center; min-height: 1.2em; width: 100%;
+            padding: 5px;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 3px;
         }
         #dynamicRecentEventsContainer {
             display: none; 
-            width: calc(100% - 16px); margin-top: 10px; padding: 8px;
-            background-color: #272729; border-radius: 5px; box-sizing: border-box;
+            width: 100%; max-width: 600px; /* Соответствует upcomingEvents */
+            margin-top: 15px; padding: 0; /* Убираем внутренний padding, т.к. li его имеют */
+            border-radius: 4px; 
             overflow-y: auto; flex-shrink: 0; 
+            border: 1px solid var(--d2-border-color);
+            background-color: var(--d2-bg-panel);
+            padding: 10px;
         }
-        #dynamicRecentEventsContainer .section-title { font-size: 1.1em; margin-bottom: 6px; }
+        #dynamicRecentEventsContainer .section-title { font-size: 1.2em; margin-bottom: 8px; }
         #dynamicRecentEventsList li {
-            background-color: #38383a; padding: 6px 8px; font-size: 0.9em;
-            display: flex; justify-content: space-between; align-items: center;
-            border-left: 3px solid #ff9800;
+            border-left-color: #ff9800; /* Оранжевый для недавних */
         }
         #dynamicRecentEventsList .event-name { font-weight: normal; }
-        #dynamicRecentEventsList .event-meta { font-size: 0.85em; color: #c0c0c0; }
-        #dynamicRecentEventsList .event-timeout { font-size: 0.8em; color: #999; margin-left: 8px;}
+        #dynamicRecentEventsList .event-meta { font-size: 0.9em; color: var(--d2-text-secondary); }
+        #dynamicRecentEventsList .event-timeout { font-size: 0.85em; color: #888; margin-left: 8px;}
+        
+        .gemini-output {
+            margin-top: 15px; padding: 12px; 
+            background-color: var(--d2-bg-panel-light); 
+            border-radius: 4px; min-height: 3.5em; 
+            text-align: left;
+            border: 1px solid var(--d2-border-color);
+            border-left: 4px solid var(--gemini-button-bg);
+            color: var(--d2-text-primary);
+            line-height: 1.6;
+            width: 100%; max-width: 564px; 
+            box-sizing: border-box;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
 
         /* --- АДАПТАЦИЯ (ОБЫЧНЫЙ РЕЖИМ) --- */
         @media (max-width: 768px) and (orientation: portrait) {
-            .app-wrapper { padding: 5px; }
-            .main-container { flex-direction: column; gap: 10px; }
-            .left-panel, .right-panel { flex-basis: auto; width: 100%; }
-            .right-panel { max-height: 30vh; }
+            .app-wrapper { padding: 8px; }
+            .main-container { flex-direction: column; gap: 12px; }
+            .left-panel, .right-panel { flex-basis: auto; width: 100%; padding: 12px; }
+            .right-panel { max-height: 35vh; }
             #dynamicRecentEventsContainer { display: none !important; } 
+            #timerDisplay { font-size: 3em; }
         }
-        @media (max-height: 550px) and (orientation: landscape) and (max-width: 900px) { 
-            .app-wrapper { padding: 5px; }
-            body:not(.horizontal-lockscreen-mode) { font-size: 12.5px; }
-            .main-container { gap: 8px; }
-            .left-panel { flex: 3; }
-            .right-panel { flex: 1.8; font-size: 0.8em; padding: 8px; }
-            #timerDisplay { font-size: 2.8em; }
-            .control-group button { font-size: 0.85em; padding: 5px 8px; margin: 3px; }
-            .control-group input[type="number"] { width: 38px; padding: 5px; font-size: 0.85em;}
-            .section-title { font-size: 1.2em; }
-            #upcomingEvents li { padding: 6px 8px; font-size: 0.95em; }
-            #dynamicRecentEventsContainer { display: block; order: 3; }
-            .right-panel { max-height: calc(100vh - 20px); }
+        @media (max-height: 600px) and (orientation: landscape) and (max-width: 950px) { 
+            .app-wrapper { padding: 8px; }
+            body:not(.horizontal-lockscreen-mode) { font-size: 13px; }
+            .main-container { gap: 10px; }
+            .left-panel { flex: 2.8; padding:10px; }
+            .right-panel { flex: 2; font-size: 0.85em; padding: 10px; }
+            #timerDisplay { font-size: 2.5em; }
+            .control-group button { font-size: 0.9em; padding: 6px 10px; }
+            .control-group input[type="number"] { width: 40px; padding: 6px; font-size: 0.9em;}
+            .section-title { font-size: 1.3em; }
+            #upcomingEvents li, #dynamicRecentEventsList li { padding: 8px 10px; font-size: 0.95em; }
+            #dynamicRecentEventsContainer { display: block; order: 3; margin-top: 12px; }
+            .right-panel { max-height: calc(100vh - 25px); }
         }
         @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
-            body:not(.horizontal-lockscreen-mode) { font-size: 13.5px; }
+            body:not(.horizontal-lockscreen-mode) { font-size: 14px; }
             .left-panel { flex: 2.2; }
             .right-panel { flex: 1.8; }
             #dynamicRecentEventsContainer { display: none; } 
         }
 
         /* --- LOCKSCREEN РЕЖИМ --- */
-        body.horizontal-lockscreen-mode { font-size: 16px; }
-        body.horizontal-lockscreen-mode .app-wrapper {
-            padding: 0; overflow: hidden; 
-        }
+        body.horizontal-lockscreen-mode { font-size: 16px; background-color: #000; }
+        body.horizontal-lockscreen-mode .app-wrapper { padding: 0; overflow: hidden; }
         body.horizontal-lockscreen-mode .main-container {
             flex-direction: column; height: 100%; width: 100%;
-            padding: 1.5vh 2vw; gap: 1vh; 
+            padding: 1.5vh 2.5vw; gap: 1vh; 
             justify-content: space-between; box-sizing: border-box;
-            background-color: #000; 
         }
         body.horizontal-lockscreen-mode .controls-column,
         body.horizontal-lockscreen-mode .right-panel, 
         body.horizontal-lockscreen-mode #wakeLockStatus,
         body.horizontal-lockscreen-mode #notificationStatus,
         body.horizontal-lockscreen-mode #upcomingEvents > .section-title,
-        body.horizontal-lockscreen-mode #lockScreenToggle { 
+        body.horizontal-lockscreen-mode #lockScreenToggle,
+        body.horizontal-lockscreen-mode .gemini-output { 
             display: none !important;
         }
         body.horizontal-lockscreen-mode .left-panel {
-            flex: 1; width: 100%;
+            flex: 1; width: 100%; padding:0; border:none; box-shadow:none; background:transparent;
             justify-content: flex-start; align-items: center;
             overflow: hidden; gap: 1.5vh; 
         }
         body.horizontal-lockscreen-mode #timerDisplay {
-            font-size: min(9vh, 10vw); 
-            line-height: 1; margin-bottom: 0.5vh; 
+            font-size: min(8vh, 9vw); 
+            line-height: 1; margin-bottom: 1vh; 
             flex-shrink: 0; 
+            color: var(--d2-text-title);
+            text-shadow: 0 0 10px var(--d2-text-title), 0 0 20px var(--d2-text-title);
         }
         body.horizontal-lockscreen-mode #upcomingEvents {
             width: 100%; max-width: none; flex-grow: 1;
-            overflow-y: hidden; 
+            overflow: hidden; /* Убираем скролл, элементы должны помещаться */
             display: flex; flex-direction: column; justify-content: space-around;
             max-height: 48vh; 
+            padding:0; border:none; box-shadow:none; background:transparent;
         }
         body.horizontal-lockscreen-mode #upcomingEvents ul {
             display: flex; flex-direction: column; height: 100%;
             justify-content: space-around; 
         }
         body.horizontal-lockscreen-mode #upcomingEvents li {
-            padding: 1.5vh 2vw; font-size: min(3.4vh, 3.2vw); 
-            border-left-width: 5px; flex-grow: 1; margin-bottom: 1vh; 
+            padding: 1.5vh 2vw; font-size: min(3.5vh, 3.3vw); 
+            border-left-width: 6px; flex-grow: 1; margin-bottom: 1.2vh; 
             display: flex; flex-direction: column; justify-content: center;
+            background-color: rgba(30,30,30,0.85); /* Полупрозрачный фон */
+            border: 1px solid rgba(70,70,80,0.7);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
         body.horizontal-lockscreen-mode #upcomingEvents li:last-child { margin-bottom: 0; }
         body.horizontal-lockscreen-mode #upcomingEvents li .event-details {
              flex-direction: column; align-items: flex-start; gap: 0.5vh;
         }
-        body.horizontal-lockscreen-mode #upcomingEvents li .event-name { font-size: 1em; }
-        body.horizontal-lockscreen-mode #upcomingEvents li .event-time { font-size: 0.8em; }
+        body.horizontal-lockscreen-mode #upcomingEvents li .event-name { font-size: 1em; color: #e5e5e5; }
+        body.horizontal-lockscreen-mode #upcomingEvents li .event-time { font-size: 0.75em; color: #a0a0a0; }
         body.horizontal-lockscreen-mode #upcomingEvents li .progress-bar-container {
-            height: 2.2vh; border-radius: 1.1vh; margin-top: 1vh;
+            height: 2.5vh; border-radius: 1.25vh; margin-top: 1.2vh;
+            background-color: #222;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsContainer {
             display: block !important; width: 100%;
-            padding: 1.8vh 1.8vw; 
-            font-size: min(3.5vh, 3.2vw); 
-            background-color: #181818; border-top: 1px solid #444;
-            flex-shrink: 0; max-height: 35vh; 
+            padding: 1.5vh 2vw; 
+            font-size: min(3.6vh, 3.3vw); 
+            background-color: rgba(20,20,20,0.85); 
+            border-top: 2px solid rgba(70,70,80,0.7);
+            flex-shrink: 0; max-height: 36vh; 
             overflow-y: auto;
+            border-radius:0; box-shadow:none;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsContainer .section-title {
-            display: block; font-size: 0.8em; margin-bottom: 0.8vh; color: #ddd;
+            display: block; font-size: 0.7em; 
+            margin-bottom: 1vh; color: #b0b0b0; text-transform: uppercase;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsList li {
             padding: 1.2vh 1.5vw; 
-            font-size: 1em; background-color: #282828; margin-bottom: 1vh;
+            font-size: 1em; background-color: rgba(40,40,40,0.8); margin-bottom: 1vh;
+            border-left-width: 5px;
+            border: 1px solid rgba(60,60,70,0.6);
         }
+        body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-name { color: #d5d5d5;}
         body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-meta {
-            font-size: 0.9em; 
+            font-size: 0.8em; color: #999;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-timeout { 
-            display: inline; font-size: 0.85em; 
+            display: inline; font-size: 0.75em; color: #777;
         }
         
         #exitLockScreenButton { 
@@ -255,16 +377,20 @@
             top: 15px; right: 15px; z-index: 20000; 
             padding: 0; 
             background-color: var(--exit-button-bg); color: white; 
-            border: none; border-radius: 50%; 
-            font-size: 1.5em; 
-            width: 45px; height: 45px;
-            line-height: 45px; text-align: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; 
+            font-size: 1.6em; 
+            width: 50px; height: 50px;
+            line-height: 48px; text-align: center; /* Скорректировано для центровки */
+            box-shadow: 0 0 15px rgba(0,0,0,0.7);
             cursor: pointer;
             user-select: none; 
+            opacity: 0.8;
+            transition: opacity 0.2s, transform 0.2s;
         }
         #exitLockScreenButton:hover {
             background-color: var(--exit-button-hover-bg);
+            opacity: 1;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -288,12 +414,14 @@
                     <div class="control-group notification-controls">
                         <button id="toggleNotificationsButton">Включить Уведомления</button>
                     </div>
+                    <div class="control-group gemini-controls"> 
+                        <button id="geminiTipButton">✨ Дай совет!</button>
+                    </div>
                 </div>
                  <div id="wakeLockStatus" class="status-messages"></div>
                  <div id="notificationStatus" class="status-messages"></div>
-
-                <div id="upcomingEvents" style="width:100%; max-width:600px;">
-                    <h2 class="section-title">Ближайшие события</h2>
+                 <div id="geminiTipDisplay" class="status-messages gemini-output"></div> 
+                 <div id="upcomingEvents"> <h2 class="section-title">Ближайшие события</h2>
                     <ul id="eventsList"></ul>
                 </div>
                 <div id="dynamicRecentEventsContainer">
@@ -331,6 +459,8 @@
         const eventNowSoundPlayer = document.getElementById('eventNowSoundPlayer');
         const wakeLockStatus = document.getElementById('wakeLockStatus');
         const notificationStatus = document.getElementById('notificationStatus');
+        const geminiTipButton = document.getElementById('geminiTipButton');
+        const geminiTipDisplay = document.getElementById('geminiTipDisplay');
 
         // --- Constants ---
         const ALERT_OFFSET_SECONDS = 15;
@@ -407,7 +537,7 @@
         function showBrowserNotification(title, body, tag, requireInteraction = false) {
             let shouldShow = popUpNotificationsEnabled && Notification.permission === 'granted';
             if (shouldShow && !document.body.classList.contains('horizontal-lockscreen-mode') && !document.hasFocus()) {
-                shouldShow = false; // В обычном режиме не показывать, если вкладка не активна
+                shouldShow = false; 
             }
             if (!shouldShow) return;
 
@@ -493,7 +623,8 @@
 
             dynamicRecentEventsList.innerHTML = '';
             const container = document.getElementById('dynamicRecentEventsContainer');
-            const containerVisible = (container && container.style.display !== 'none') || document.body.classList.contains('horizontal-lockscreen-mode');
+            // Проверяем видимость контейнера не только по style.display, но и по наличию lockscreen класса у body
+            const containerVisible = (container && getComputedStyle(container).display !== 'none');
 
 
             if (displayItems.length === 0 && containerVisible) {
@@ -532,7 +663,7 @@
                 
                 let alertedWarningFlag = false;
                 if(e.eventObj.isOneTime) alertedWarningFlag = e.eventObj.alertedWarning;
-                else if(e.eventObj.spawnTimes && e.spawnIndex !== undefined) alertedWarningFlag = e.eventObj.alertedWarning[e.spawnIndex];
+                else if(e.eventObj.spawnTimes && typeof e.spawnIndex === 'number') alertedWarningFlag = e.eventObj.alertedWarning[e.spawnIndex];
                 else if (!e.eventObj.isOneTime && !e.eventObj.spawnTimes) alertedWarningFlag = e.eventObj.alertedWarning;
 
                 const classListVal = timeTo <= 0 && timeTo > -ALERT_OFFSET_SECONDS ? 'alert-event-now' : (alertedWarningFlag && timeTo > 0 && timeTo <= ALERT_OFFSET_SECONDS ? 'alert-warning' : '');
@@ -626,7 +757,7 @@
             }
             if (screen.orientation && screen.orientation.lock) {
                 try { await screen.orientation.lock('landscape-primary'); } catch (err) { 
-                    try { await screen.orientation.lock('landscape'); } // Fallback
+                    try { await screen.orientation.lock('landscape'); } 
                     catch (err2) { console.warn("Orient. lock fail:",err2.message); }
                 }
             }
@@ -656,6 +787,53 @@
             }
         });
         
+        // --- Gemini API Integration ---
+        geminiTipButton.addEventListener('click', async () => {
+            if (!isTimerRunning && gameTimeInSeconds === 0) {
+                geminiTipDisplay.textContent = "Запустите таймер, чтобы получить совет, актуальный для текущего времени игры.";
+                return;
+            }
+            geminiTipDisplay.innerHTML = "✨ Получение совета от Gemini..."; 
+
+            const gameMinutes = Math.floor(gameTimeInSeconds / 60);
+            const prompt = `Dota 2: Сейчас ${gameMinutes} минута игры. Дай краткий и полезный совет (1-2 предложения) для игрока в типичном публичном матче на этой стадии игры. Отвечай на русском языке.`;
+            
+            let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("Gemini API error response:", errorData);
+                    throw new Error(`Ошибка от Gemini API: ${response.status} ${response.statusText}. ${errorData?.error?.message || ''}`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    geminiTipDisplay.textContent = text;
+                } else {
+                    console.error("Unexpected response structure from Gemini API:", result);
+                    geminiTipDisplay.textContent = "Не удалось получить совет. Попробуйте позже.";
+                }
+            } catch (error) {
+                console.error('Ошибка при запросе к Gemini API:', error);
+                geminiTipDisplay.textContent = `Произошла ошибка: ${error.message}. Попробуйте позже.`;
+            }
+        });
+
+
         // --- Event Listeners for Controls ---
         function attemptInitialSoundUnlock() {
             const p1 = warningSoundPlayer.play(); if (p1 && p1.then) p1.then(_=>warningSoundPlayer.pause()).catch(()=>{});
@@ -666,10 +844,9 @@
             if (!isTimerRunning) {
                 isTimerRunning = true;
                 await requestWakeLock();
-                if (gameTimeInSeconds === 0 && pastEventsLog.length === 0) { // Полный старт
+                if (gameTimeInSeconds === 0 && pastEventsLog.length === 0) { 
                     initializeEventStates(0); rebuildPastEventsLog(0); allPotentiallyRecentEvents = [];
                 }
-                // Если это resume, то gameTimeInSeconds уже установлено, и состояния событий должны быть актуальны
                 updateAllDisplays(); 
                 if(timerInterval) clearInterval(timerInterval); 
                 timerInterval = setInterval(mainLoop, 1000);
@@ -689,6 +866,7 @@
             gameTimeInSeconds = 0;
             syncMinutesInput.value = ''; syncSecondsInput.value = '';
             initializeEventStates(0); rebuildPastEventsLog(0); allPotentiallyRecentEvents = [];
+            geminiTipDisplay.textContent = ""; 
             updateAllDisplays();
             startButton.textContent = "Start Timer";
         });
@@ -699,7 +877,6 @@
             
             const minutesText = syncMinutesInput.value;
             const secondsText = syncSecondsInput.value;
-            // Если поля пустые, считаем их за 0
             const minutes = minutesText === "" ? 0 : parseInt(minutesText);
             const seconds = secondsText === "" ? 0 : parseInt(secondsText);
 
@@ -729,6 +906,7 @@
             });
             allPotentiallyRecentEvents.sort((a,b) => b.occurrenceTime - a.occurrenceTime);
             if(allPotentiallyRecentEvents.length > 20) allPotentiallyRecentEvents = allPotentiallyRecentEvents.slice(0,20);
+            geminiTipDisplay.textContent = ""; 
             updateAllDisplays();
             startButton.textContent = "Resume Timer";
         });
