@@ -9,13 +9,13 @@
     "orientation": "any",
     "icons": [
         {
-            "src": "dota_icon192.png",
+            "src": "dota_icon.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "dota_icon512.png", 
+            "src": "dota_icon.png", 
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
