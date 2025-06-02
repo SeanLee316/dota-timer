@@ -1,14 +1,16 @@
 // sw.js
 
-const CACHE_NAME = 'dota2-timer-cache-v1.2'; // Обновите версию при изменениях в файлах для кеширования!
-const DYNAMIC_CACHE_NAME = 'dota2-timer-dynamic-v1.2';
+const CACHE_NAME = 'dota2-timer-cache-v1.3'; // Обновите версию при изменениях в файлах для кеширования!
+const DYNAMIC_CACHE_NAME = 'dota2-timer-dynamic-v1.3';
 
-// Замените 'dota_timer.html' на фактическое имя вашего основного HTML файла, если оно другое.
+// Замените 'dota_timer_final.html' на фактическое имя вашего основного HTML файла.
 // Если ваш HTML-файл называется index.html и лежит в корне рядом с sw.js, то './' будет достаточно.
-const HTML_FILE_NAME = './'; // Или './dota_timer.html', если ваш файл так называется
+const MAIN_HTML_FILE = './dota_timer_final.html'; // УКАЖИТЕ ПРАВИЛЬНОЕ ИМЯ ФАЙЛА!
 
 const STATIC_ASSETS = [
-    HTML_FILE_NAME,
+    './', // Кеширует корень (обычно index.html или то, что отдает сервер для '/')
+    MAIN_HTML_FILE,
+    './manifest.json', // Добавляем манифест в кеш
     './dota_icon.png', 
     './warning_alert.mp3',
     './event_now_alert.mp3'
@@ -17,21 +19,16 @@ const STATIC_ASSETS = [
     // './script.js', 
 ];
 
+// Установка Service Worker: кеширование статических ассетов
 self.addEventListener('install', event => {
     console.log('[SW] Installing Service Worker...');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('[SW] Precaching App Shell:', STATIC_ASSETS);
-                // Проверяем, если HTML_FILE_NAME это './', то может быть ошибка при кешировании, если это директория
-                // Лучше всего явно указать имя файла или убедиться, что сервер отдает index.html для '/'
-                let assetsToCache = [...STATIC_ASSETS];
-                if (HTML_FILE_NAME === './' && !assetsToCache.find(url => url.endsWith('.html'))) {
-                    // Это предположение, что главный файл - index.html
-                    // Для большей надежности, пользователь должен явно указать имя HTML файла.
-                    // Я оставлю './', но рекомендую пользователю проверить.
-                }
-                return cache.addAll(assetsToCache.filter(url => url)); // Фильтруем пустые URL, если есть
+                // Убираем дублирование, если MAIN_HTML_FILE уже есть в STATIC_ASSETS через './'
+                const uniqueAssetsToCache = [...new Set(STATIC_ASSETS.filter(url => url))];
+                return cache.addAll(uniqueAssetsToCache);
             })
             .catch(err => {
                 console.error('[SW] Precaching failed:', err);
@@ -39,6 +36,7 @@ self.addEventListener('install', event => {
     );
 });
 
+// Активация Service Worker: очистка старых кешей
 self.addEventListener('activate', event => {
     console.log('[SW] Activating Service Worker...');
     event.waitUntil(
@@ -54,33 +52,37 @@ self.addEventListener('activate', event => {
     return self.clients.claim(); 
 });
 
+// Обработка запросов Fetch
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Для навигационных запросов (HTML) и статических ассетов: стратегия Cache first, then Network
+    // Стратегия: Cache first, then Network для HTML и статических ассетов
     if (event.request.mode === 'navigate' || STATIC_ASSETS.some(asset => url.pathname.endsWith(asset.substring(1)))) {
         event.respondWith(
             caches.match(event.request)
                 .then(cachedResponse => {
                     if (cachedResponse) {
-                        // console.log('[SW] Serving from static cache:', event.request.url);
                         return cachedResponse;
                     }
                     return fetch(event.request).then(networkResponse => {
-                        // Не кешируем ошибки или непрозрачные ответы для статики из сети, если ее нет в кеше
                         if (networkResponse && networkResponse.ok) {
                              const responseToCache = networkResponse.clone();
-                             caches.open(CACHE_NAME).then(cache => { // Можно использовать и DYNAMIC_CACHE_NAME
+                             caches.open(CACHE_NAME).then(cache => { 
                                  cache.put(event.request, responseToCache);
                              });
                         }
                         return networkResponse;
+                    }).catch(err => {
+                        console.warn(`[SW] Network request for ${event.request.url} failed, trying fallback. Error: ${err}`);
+                        // Если это HTML и он не найден в сети, отдаем закешированный главный HTML как fallback
+                        if (event.request.mode === 'navigate' || url.pathname.endsWith('.html')) {
+                            return caches.match(MAIN_HTML_FILE);
+                        }
                     });
                 })
         );
     } else {
-        // Для других запросов (например, API, если бы они были): Network first, then Cache (или другая стратегия)
-        // В данном приложении таких запросов нет, но оставим для примера
+        // Для других запросов (например, API, если бы они были): Network first, then Cache
         event.respondWith(
             fetch(event.request)
                 .then(response => {
@@ -93,7 +95,7 @@ self.addEventListener('fetch', event => {
                     });
                     return response;
                 })
-                .catch(() => caches.match(event.request)) // Отдать из кеша при ошибке сети
+                .catch(() => caches.match(event.request)) 
         );
     }
 });
