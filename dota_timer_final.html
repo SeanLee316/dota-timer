@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Dota 2 Таймер - Gemini Советы v4</title>
-    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1C1F26"> <title>Dota 2 Таймер - Gemini Советы v4</title> <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
@@ -600,7 +599,7 @@
         const AUTO_TIP_INTERVALS = [5 * 60, 10 * 60, 15 * 60, 25 * 60, 35 * 60, 45 * 60]; 
         const AUTO_TIP_COOLDOWN = 2 * 60; 
         const LOCKSCREEN_AUTO_TIP_MAX_LENGTH = 80; 
-        const LOCKSCREEN_MANUAL_TIP_MAX_LENGTH_DISPLAY = 100; // Макс. длина ручного совета для LockScreen перед суммаризацией
+        const LOCKSCREEN_MANUAL_TIP_MAX_LENGTH_DISPLAY = 100; 
 
 
         // --- State Variables ---
@@ -1050,7 +1049,7 @@
                     } else {
                          geminiAdviceLockScreen.textContent = strippedInitialText;
                     }
-                } else if (geminiAdviceLockScreen) { // Если не в LockScreen, но элемент существует, очищаем его
+                } else if (geminiAdviceLockScreen) { 
                     geminiAdviceLockScreen.textContent = ""; 
                 }
 
