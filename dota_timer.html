@@ -6,7 +6,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Dota 2 Таймер (Offline Ready)</title>
-    <link rel="manifest" href="manifest.json"> <style>
+    <link rel="manifest" href="manifest.json">
+    <style>
         /* --- ОБЩИЕ СТИЛИ --- */
         :root {
             --bg-color: #1c1c1e;
@@ -27,7 +28,7 @@
             background-color: var(--bg-color); color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             font-size: 14px;
-            -webkit-tap-highlight-color: transparent; /* Убрать синюю подсветку при тапе на мобильных */
+            -webkit-tap-highlight-color: transparent;
         }
         .app-wrapper {
             display: flex; flex-direction: column; align-items: center;
@@ -175,7 +176,7 @@
         }
 
         /* --- LOCKSCREEN РЕЖИМ --- */
-        body.horizontal-lockscreen-mode { font-size: 16px; } /* Базовый для LockScreen */
+        body.horizontal-lockscreen-mode { font-size: 16px; }
         body.horizontal-lockscreen-mode .app-wrapper {
             padding: 0; overflow: hidden; 
         }
@@ -199,15 +200,15 @@
             overflow: hidden; gap: 1.5vh; 
         }
         body.horizontal-lockscreen-mode #timerDisplay {
-            font-size: min(9vh, 10vw); /* УМЕНЬШЕНО, но все еще крупно */
-            line-height: 1; margin-bottom: 0.5vh; /* Меньше отступ */
+            font-size: min(9vh, 10vw); 
+            line-height: 1; margin-bottom: 0.5vh; 
             flex-shrink: 0; 
         }
         body.horizontal-lockscreen-mode #upcomingEvents {
             width: 100%; max-width: none; flex-grow: 1;
             overflow-y: hidden; 
             display: flex; flex-direction: column; justify-content: space-around;
-            max-height: 48vh; /* Скорректировано для баланса с недавними */
+            max-height: 48vh; 
         }
         body.horizontal-lockscreen-mode #upcomingEvents ul {
             display: flex; flex-direction: column; height: 100%;
@@ -229,17 +230,17 @@
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsContainer {
             display: block !important; width: 100%;
-            padding: 1.8vh 1.8vw; /* УВЕЛИЧЕНЫ отступы */
-            font-size: min(3.5vh, 3.2vw); /* УВЕЛИЧЕН шрифт */
+            padding: 1.8vh 1.8vw; 
+            font-size: min(3.5vh, 3.2vw); 
             background-color: #181818; border-top: 1px solid #444;
-            flex-shrink: 0; max-height: 35vh; /* УВЕЛИЧЕНО */
+            flex-shrink: 0; max-height: 35vh; 
             overflow-y: auto;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsContainer .section-title {
             display: block; font-size: 0.8em; margin-bottom: 0.8vh; color: #ddd;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsList li {
-            padding: 1.2vh 1.5vw; /* УВЕЛИЧЕНО */
+            padding: 1.2vh 1.5vw; 
             font-size: 1em; background-color: #282828; margin-bottom: 1vh;
         }
         body.horizontal-lockscreen-mode #dynamicRecentEventsList .event-meta {
@@ -252,16 +253,15 @@
         #exitLockScreenButton { 
             display: none; position: fixed; 
             top: 15px; right: 15px; z-index: 20000; 
-            padding: 0; /* Убираем padding для точного размера */
+            padding: 0; 
             background-color: var(--exit-button-bg); color: white; 
             border: none; border-radius: 50%; 
-            font-size: 1.5em; /* Размер иконки */
+            font-size: 1.5em; 
             width: 45px; height: 45px;
-            line-height: 45px; /* Центрируем иконку */
-            text-align: center;
+            line-height: 45px; text-align: center;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             cursor: pointer;
-            user-select: none; /* Предотвратить выделение текста на кнопке */
+            user-select: none; 
         }
         #exitLockScreenButton:hover {
             background-color: var(--exit-button-hover-bg);
@@ -355,10 +355,10 @@
                     if (wakeLockSentinel) { await wakeLockSentinel.release(); wakeLockSentinel = null; }
                     wakeLockSentinel = await navigator.wakeLock.request('screen');
                     wakeLockStatus.textContent = 'Экран не будет гаснуть.';
-                    wakeLockSentinel.addEventListener('release', (event) => { // Добавлен параметр event
+                    wakeLockSentinel.addEventListener('release', (event) => { 
                         wakeLockStatus.textContent = '';
                         if (event && event.target === wakeLockSentinel) wakeLockSentinel = null;
-                        else if (!event) wakeLockSentinel = null; // На случай если event не передан
+                        else if (!event) wakeLockSentinel = null; 
                     });
                 } catch (err) {
                     console.error("Wake Lock request error:", err);
@@ -405,12 +405,12 @@
             }
         });
         function showBrowserNotification(title, body, tag, requireInteraction = false) {
-            if (!popUpNotificationsEnabled || Notification.permission !== 'granted' || (!document.hasFocus() && !document.body.classList.contains('horizontal-lockscreen-mode'))) {
-                // В LockScreen режиме уведомления показываем всегда, если разрешены
-                // В обычном режиме - только если вкладка активна (можно изменить это условие)
-                 if (!document.body.classList.contains('horizontal-lockscreen-mode') && !document.hasFocus()) return;
-                 if (!popUpNotificationsEnabled || Notification.permission !== 'granted') return;
+            let shouldShow = popUpNotificationsEnabled && Notification.permission === 'granted';
+            if (shouldShow && !document.body.classList.contains('horizontal-lockscreen-mode') && !document.hasFocus()) {
+                shouldShow = false; // В обычном режиме не показывать, если вкладка не активна
             }
+            if (!shouldShow) return;
+
             const options = { body, icon: DOTA_ICON_PATH, tag, renotify: true, requireInteraction };
             try { new Notification(title, options); } catch (e) { console.error("Error showing notification: ", e); }
         }
@@ -492,7 +492,9 @@
             const displayItems = recentAndValid.slice(0, 3);
 
             dynamicRecentEventsList.innerHTML = '';
-            const containerVisible = document.getElementById('dynamicRecentEventsContainer').style.display !== 'none' || document.body.classList.contains('horizontal-lockscreen-mode');
+            const container = document.getElementById('dynamicRecentEventsContainer');
+            const containerVisible = (container && container.style.display !== 'none') || document.body.classList.contains('horizontal-lockscreen-mode');
+
 
             if (displayItems.length === 0 && containerVisible) {
                  dynamicRecentEventsList.innerHTML = '<li>Нет недавних активностей.</li>';
@@ -530,8 +532,8 @@
                 
                 let alertedWarningFlag = false;
                 if(e.eventObj.isOneTime) alertedWarningFlag = e.eventObj.alertedWarning;
-                else if(e.eventObj.spawnTimes) alertedWarningFlag = e.eventObj.alertedWarning[e.spawnIndex];
-                else alertedWarningFlag = e.eventObj.alertedWarning;
+                else if(e.eventObj.spawnTimes && e.spawnIndex !== undefined) alertedWarningFlag = e.eventObj.alertedWarning[e.spawnIndex];
+                else if (!e.eventObj.isOneTime && !e.eventObj.spawnTimes) alertedWarningFlag = e.eventObj.alertedWarning;
 
                 const classListVal = timeTo <= 0 && timeTo > -ALERT_OFFSET_SECONDS ? 'alert-event-now' : (alertedWarningFlag && timeTo > 0 && timeTo <= ALERT_OFFSET_SECONDS ? 'alert-warning' : '');
                 eventsList.innerHTML += `<li class="${classListVal}"><div class="event-details"><span class="event-name">${e.name}</span><span class="event-time">через ${formatTime(timeTo)} (в ${formatTime(e.time)})</span></div>${progressHtml}</li>`;
@@ -552,9 +554,8 @@
             eventStates.forEach(event => {
                 let eventTime, baseName, uniqueIdPart;
                 const processEventInstance = (currentTime, alertedWarningFlag, alertedEventFlag, setWarningFlag, setEventFlag, isRepeating = false, advanceRepeatFunc = null) => {
-                    if (alertedEventFlag && !isRepeating) return; // Для не-повторяющихся, если событие уже было, выходим
-                    if (isRepeating && gameTimeInSeconds < currentTime && alertedEventFlag) return; // Для повторяющихся, если текущее время еще не достигло *нового* nextSpawnTime, но флаг alertedEvent почему-то true (например, от предыдущего спавна), не обрабатываем
-
+                    if (alertedEventFlag && !isRepeating) return; 
+                    if (isRepeating && gameTimeInSeconds < currentTime && alertedEventFlag) return;
 
                     if (!alertedWarningFlag && gameTimeInSeconds >= currentTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < currentTime) {
                         playSound(warningSoundPlayer, `${baseName} Warning`);
@@ -573,7 +574,7 @@
                         if (!allPotentiallyRecentEvents.find(e_2 => e_2.id === eventId)) {
                             allPotentiallyRecentEvents.unshift({ id: eventId, name: baseName, timeText: formatTime(currentTime), occurrenceTime: currentTime });
                         }
-                        setEventFlag(true); // Важно: ставим флаг, что это *конкретное* время события обработано
+                        setEventFlag(true); 
                         if (isRepeating && advanceRepeatFunc) advanceRepeatFunc();
                     }
                 };
@@ -586,19 +587,17 @@
                         eventTime = st; baseName = event.name; uniqueIdPart = st;
                         processEventInstance(eventTime, event.alertedWarning[idx], event.alertedEvent[idx], (v) => event.alertedWarning[idx] = v, (v) => event.alertedEvent[idx] = v);
                     });
-                } else { // Repeating
-                    eventTime = event.nextSpawnTime; baseName = event.name; uniqueIdPart = eventTime; // Уникальный ID для текущего nextSpawnTime
+                } else { 
+                    eventTime = event.nextSpawnTime; baseName = event.name; uniqueIdPart = eventTime; 
                     processEventInstance(eventTime, event.alertedWarning, event.alertedEvent, 
                         (v) => event.alertedWarning = v, 
-                        (v) => event.alertedEvent = v, // Этот флаг сбросится только когда nextSpawnTime действительно продвинется
+                        (v) => event.alertedEvent = v, 
                         true, 
-                        () => { // advanceRepeatFunc
+                        () => { 
                             const prevNextSpawn = event.nextSpawnTime;
-                            // Продвигаем nextSpawnTime до следующего значения, которое БОЛЬШЕ текущего gameTimeInSeconds
                             while (event.nextSpawnTime <= gameTimeInSeconds) {
                                 event.nextSpawnTime += event.interval;
                             }
-                            // Если nextSpawnTime действительно изменился (т.е. мы перешли к следующему интервалу), сбрасываем флаги
                             if (event.nextSpawnTime > prevNextSpawn) { 
                                 event.alertedWarning = false; 
                                 event.alertedEvent = false;
@@ -626,7 +625,10 @@
                 try { await document.documentElement.requestFullscreen(); } catch (err) { console.warn("FS fail:",err.message); }
             }
             if (screen.orientation && screen.orientation.lock) {
-                try { await screen.orientation.lock('landscape'); } catch (err) { console.warn("Orient. lock fail:",err.message); }
+                try { await screen.orientation.lock('landscape-primary'); } catch (err) { 
+                    try { await screen.orientation.lock('landscape'); } // Fallback
+                    catch (err2) { console.warn("Orient. lock fail:",err2.message); }
+                }
             }
             if (isTimerRunning && !wakeLockSentinel) await requestWakeLock();
             updateAllDisplays();
@@ -664,18 +666,19 @@
             if (!isTimerRunning) {
                 isTimerRunning = true;
                 await requestWakeLock();
-                if (gameTimeInSeconds === 0 && pastEventsLog.length === 0) {
+                if (gameTimeInSeconds === 0 && pastEventsLog.length === 0) { // Полный старт
                     initializeEventStates(0); rebuildPastEventsLog(0); allPotentiallyRecentEvents = [];
                 }
+                // Если это resume, то gameTimeInSeconds уже установлено, и состояния событий должны быть актуальны
                 updateAllDisplays(); 
-                if(timerInterval) clearInterval(timerInterval); // На всякий случай, если старый интервал не был очищен
+                if(timerInterval) clearInterval(timerInterval); 
                 timerInterval = setInterval(mainLoop, 1000);
                 startButton.textContent = "Pause Timer";
             } else {
                 isTimerRunning = false;
                 await releaseWakeLock();
                 clearInterval(timerInterval);
-                timerInterval = null; // Явно обнуляем
+                timerInterval = null; 
                 startButton.textContent = "Resume Timer";
             }
         });
@@ -696,6 +699,7 @@
             
             const minutesText = syncMinutesInput.value;
             const secondsText = syncSecondsInput.value;
+            // Если поля пустые, считаем их за 0
             const minutes = minutesText === "" ? 0 : parseInt(minutesText);
             const seconds = secondsText === "" ? 0 : parseInt(secondsText);
 
@@ -732,7 +736,7 @@
         // --- Service Worker Registration ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js') // Убедитесь, что путь к sw.js правильный
+                navigator.serviceWorker.register('./sw.js') 
                     .then(registration => {
                         console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     })
