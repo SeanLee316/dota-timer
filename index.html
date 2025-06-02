@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1C1F26"> <title>Dota 2 Таймер - Gemini Советы v4</title> <link rel="manifest" href="manifest.json">
+    <title>Dota 2 Таймер - Gemini Советы v4 (API Key)</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
@@ -341,8 +342,9 @@
         body.horizontal-lockscreen-mode .app-wrapper { padding: 0; overflow: hidden; }
         body.horizontal-lockscreen-mode .main-container {
             flex-direction: column; height: 100%; width: 100%;
-            padding: 1vh 2vw; gap: 0.5vh; 
-            justify-content: space-between; box-sizing: border-box;
+            padding: 1vh 2.5vw; gap: 0.5vh; 
+            justify-content: center; 
+            box-sizing: border-box;
         }
         body.horizontal-lockscreen-mode .controls-column,
         body.horizontal-lockscreen-mode .right-panel, 
@@ -355,8 +357,9 @@
         }
         body.horizontal-lockscreen-mode .left-panel {
             flex: 1; width: 100%; padding:0; border:none; box-shadow:none; background:transparent;
-            justify-content: flex-start; align-items: center;
-            overflow: hidden; gap: 1vh; 
+            justify-content: center; 
+            align-items: center;
+            overflow: hidden; gap: 1.5vh; 
         }
         
         .lockscreen-top-info { 
@@ -403,15 +406,15 @@
 
 
         body.horizontal-lockscreen-mode #upcomingEvents {
-            width: 100%; max-width: none; flex-grow: 1;
+            width: 100%; max-width: none; flex-grow: 0; 
+            max-height: 40vh; 
             overflow: hidden; 
-            display: flex; flex-direction: column; justify-content: space-around;
-            max-height: 42vh; 
+            display: flex; flex-direction: column; justify-content: flex-start; 
             padding:0; border:none; box-shadow:none; background:transparent;
         }
         body.horizontal-lockscreen-mode #upcomingEvents ul {
-            display: flex; flex-direction: column; height: 100%;
-            justify-content: space-around; 
+            display: flex; flex-direction: column; 
+            justify-content: flex-start; 
         }
         body.horizontal-lockscreen-mode #upcomingEvents li {
             padding: 1.5vh 2.5vw; font-size: min(3.5vh, 3.3vw); 
@@ -777,7 +780,7 @@
         function updateUpcomingEventsDisplay(isLockScreen = false) {
             const upcoming = [];
             const displayLimit = gameTimeInSeconds + 15 * 60;
-            const maxItems = isLockScreen ? 4 : 7;
+            const maxItems = isLockScreen ? 4 : 7; // В LockScreen показываем 4 события
 
             eventStates.forEach(event => {
                 if (event.isOneTime && !event.alertedEvent && event.spawnTime > gameTimeInSeconds && event.spawnTime <= displayLimit) {
@@ -967,7 +970,7 @@
         async function callGeminiAPI(promptText, model = "gemini-2.0-flash") {
             let chatHistory = [{ role: "user", parts: [{ text: promptText }] }];
             const payload = { contents: chatHistory };
-            const apiKey = ""; 
+            const apiKey = "AIzaSyAC9dAJiPaSDAufl-kaLk6Va1-JI7cZ3t4"; // ВСТАВЛЕН API КЛЮЧ
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -1034,20 +1037,24 @@
                 
                 geminiTipDisplay.textContent = isAutomatic ? `(Авто): ${strippedInitialText}` : strippedInitialText;
 
+                // Обновленная логика для LockScreen
                 if (document.body.classList.contains('horizontal-lockscreen-mode') && geminiAdviceLockScreen) {
-                    const maxLen = isAutomatic ? LOCKSCREEN_AUTO_TIP_MAX_LENGTH : LOCKSCREEN_MANUAL_TIP_MAX_LENGTH_DISPLAY;
-                    if (strippedInitialText.length > maxLen) {
+                    const maxLenLockScreen = isAutomatic ? LOCKSCREEN_AUTO_TIP_MAX_LENGTH : LOCKSCREEN_MANUAL_TIP_MAX_LENGTH_DISPLAY;
+                    
+                    if (strippedInitialText.length > maxLenLockScreen) {
                         geminiAdviceLockScreen.textContent = "Сокращаю...";
-                        const summaryPrompt = `Суммаризируй этот совет для Dota 2 очень кратко (до ${isAutomatic ? '5-7' : '10-15'} слов), сохранив основной смысл: "${strippedInitialText}". Отвечай на русском языке.`;
+                        const summaryTargetWords = isAutomatic ? '3-5' : '8-12'; // Разное количество слов для авто и ручного
+                        const summaryPrompt = `Суммаризируй этот совет для Dota 2 очень кратко (до ${summaryTargetWords} слов), сохранив основной смысл: "${strippedInitialText}". Отвечай на русском языке.`;
                         try {
                             const summarizedText = await callGeminiAPI(summaryPrompt);
                             geminiAdviceLockScreen.textContent = stripMarkdown(summarizedText);
                         } catch (summaryError) {
                             console.error("Error summarizing tip for LockScreen:", summaryError);
-                            geminiAdviceLockScreen.textContent = strippedInitialText.substring(0, maxLen) + (strippedInitialText.length > maxLen ? "..." : "");
+                            // Обрезаем первоначальный совет, если суммаризация не удалась
+                            geminiAdviceLockScreen.textContent = strippedInitialText.substring(0, maxLenLockScreen) + (strippedInitialText.length > maxLenLockScreen ? "..." : "");
                         }
                     } else {
-                         geminiAdviceLockScreen.textContent = strippedInitialText;
+                         geminiAdviceLockScreen.textContent = strippedInitialText; // Исходный текст уже достаточно короткий
                     }
                 } else if (geminiAdviceLockScreen) { 
                     geminiAdviceLockScreen.textContent = ""; 
