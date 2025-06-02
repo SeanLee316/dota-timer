@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dota 2 Таймер Событий</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #282c34;
+            color: white;
+        }
+        #timerDisplay {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #61dafb;
+        }
+        .controls button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #61dafb;
+            color: #282c34;
+            transition: background-color 0.3s;
+        }
+        .controls button:hover {
+            background-color: #21a1f1;
+        }
+        #upcomingEvents {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+        #upcomingEvents h2 {
+            text-align: center;
+            color: #61dafb;
+        }
+        #upcomingEvents ul {
+            list-style: none;
+            padding: 0;
+        }
+        #upcomingEvents li {
+            background-color: #3c4049;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1em;
+        }
+        #upcomingEvents li .event-name {
+            font-weight: bold;
+        }
+        #upcomingEvents li .event-time {
+            color: #a2a7b0;
+        }
+        .alert-active {
+            background-color: #ffc107 !important;
+            color: black;
+        }
+         /* Для мобильных устройств */
+        @media (max-width: 600px) {
+            #timerDisplay {
+                font-size: 2em;
+            }
+            .controls button {
+                font-size: 1em;
+                padding: 8px 15px;
+            }
+            #upcomingEvents li {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="timerDisplay">00:00</div>
+    <div class="controls">
+        <button id="startButton">Start Timer</button>
+        <button id="resetButton">Reset Timer</button>
+    </div>
+
+    <div id="upcomingEvents">
+        <h2>Ближайшие события</h2>
+        <ul id="eventsList">
+            </ul>
+    </div>
+
+    <audio id="alertSound" src="alert.mp3" preload="auto"></audio>
+
+    <script>
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+        const eventsList = document.getElementById('eventsList');
+        const alertSound = document.getElementById('alertSound');
+
+        const ALERT_OFFSET_SECONDS = 15; // За сколько секунд до события давать сигнал
+
+        let gameTimeInSeconds = 0;
+        let timerInterval = null;
+        let isTimerRunning = false;
+        let eventDefinitions = [];
+
+        function getInitialEventDefinitions() {
+            return [
+                // --- Руны ---
+                { name: "Начальные Руны Богатства", type: "bounty_initial", spawnTime: 0, alerted: false, isOneTime: true, category: "rune" },
+                { name: "Водные Руны", type: "water_runes", spawnTimes: [2 * 60, 4 * 60], alerted: [false, false], category: "rune" },
+                { name: "Руны Богатства (след.)", type: "bounty_repeating", firstSpawn: 3 * 60, interval: 3 * 60, nextSpawnTime: 3 * 60, alertedForNext: false, category: "rune" },
+                { name: "Руны Усиления", type: "power_runes", firstSpawn: 6 * 60, interval: 2 * 60, nextSpawnTime: 6 * 60, alertedForNext: false, category: "rune" },
+                { name: "Руны Мудрости", type: "wisdom_runes", firstSpawn: 7 * 60, interval: 7 * 60, nextSpawnTime: 7 * 60, alertedForNext: false, category: "rune" },
+                // --- Крипы ---
+                { name: "Катапульты", type: "siege_creeps", firstSpawn: 5 * 60, interval: 2.5 * 60, nextSpawnTime: 5 * 60, alertedForNext: false, category: "creep" },
+                // --- Объекты и Боссы ---
+                { name: "Лотосы (первый)", type: "lotus_pool", firstSpawn: 3 * 60, interval: 3 * 60, nextSpawnTime: 3 * 60, alertedForNext: false, category: "object" },
+                { name: "Терзатель (первый)", type: "tormentor", spawnTime: 20 * 60, alerted: false, isOneTime: true, category: "boss" },
+                // --- Игровые циклы ---
+                { name: "Наступление Ночи", type: "night_cycle", firstSpawn: 4 * 60, interval: 8 * 60, nextSpawnTime: 4 * 60, alertedForNext: false, category: "cycle" },
+                { name: "Наступление Дня", type: "day_cycle", firstSpawn: 8 * 60, interval: 8 * 60, nextSpawnTime: 8 * 60, alertedForNext: false, category: "cycle" },
+                // Можно добавить сюда:
+                // { name: "Стак нейтралов (напом.)", type: "stack_reminder", firstSpawn: 50, interval: 60, nextSpawnTime: 50, alertedForNext: false, category: "neutral" }, // Напоминание на X:50
+            ];
+        }
+
+
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(gameTimeInSeconds);
+        }
+
+        function playAlert(eventName) {
+            console.log(`ALERT: ${eventName} in ${ALERT_OFFSET_SECONDS} seconds!`);
+            alertSound.play().catch(error => console.error("Audio play failed:", error));
+        }
+
+        function checkAndTriggerAlerts() {
+            eventDefinitions.forEach(event => {
+                if (event.isOneTime) {
+                    if (!event.alerted && gameTimeInSeconds >= event.spawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < event.spawnTime) {
+                        playAlert(event.name);
+                        event.alerted = true;
+                    }
+                } else if (event.spawnTimes) { // For events with a fixed list of spawn times (e.g., Water Runes)
+                    event.spawnTimes.forEach((spawnTime, index) => {
+                        if (!event.alerted[index] && gameTimeInSeconds >= spawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < spawnTime) {
+                            playAlert(`${event.name} (${formatTime(spawnTime)})`);
+                            event.alerted[index] = true;
+                        }
+                    });
+                } else { // For repeating events
+                    if (!event.alertedForNext && gameTimeInSeconds >= event.nextSpawnTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < event.nextSpawnTime) {
+                        playAlert(event.name);
+                        event.alertedForNext = true;
+                    }
+                    if (gameTimeInSeconds >= event.nextSpawnTime) {
+                        event.nextSpawnTime += event.interval;
+                        event.alertedForNext = false;
+                    }
+                }
+            });
+            updateUpcomingEventsDisplay();
+        }
+
+        function updateUpcomingEventsDisplay() {
+            const upcoming = [];
+            const displayLimitSeconds = gameTimeInSeconds + 10 * 60; // Показать события на ближайшие 10 минут
+
+            eventDefinitions.forEach(event => {
+                if (event.isOneTime) {
+                    if (gameTimeInSeconds < event.spawnTime && event.spawnTime <= displayLimitSeconds) {
+                        upcoming.push({ name: event.name, time: event.spawnTime });
+                    }
+                } else if (event.spawnTimes) {
+                     event.spawnTimes.forEach((spawnTime, index) => {
+                        if (gameTimeInSeconds < spawnTime && spawnTime <= displayLimitSeconds && !event.alerted[index]) {
+                             upcoming.push({ name: `${event.name}`, time: spawnTime });
+                        }
+                    });
+                } else { // Repeating events
+                    if (event.nextSpawnTime <= displayLimitSeconds) {
+                        upcoming.push({ name: event.name, time: event.nextSpawnTime });
+                         // Показать и следующий, если он тоже скоро
+                        const nextNextSpawn = event.nextSpawnTime + event.interval;
+                        if (event.name.includes("Руны") && nextNextSpawn <= displayLimitSeconds && nextNextSpawn !== event.nextSpawnTime) {
+                             // upcoming.push({ name: `${event.name} (след.)`, time: nextNextSpawn });
+                        }
+                    }
+                }
+            });
+
+            upcoming.sort((a, b) => a.time - b.time);
+
+            eventsList.innerHTML = ''; // Очистить список
+            const maxEventsToShow = 7;
+            upcoming.slice(0, maxEventsToShow).forEach(e => {
+                const listItem = document.createElement('li');
+                const timeRemaining = e.time - gameTimeInSeconds;
+                const isAlerting = timeRemaining <= ALERT_OFFSET_SECONDS && timeRemaining > 0;
+
+                listItem.innerHTML = `
+                    <span class="event-name">${e.name}</span>
+                    <span class="event-time">через ${formatTime(timeRemaining)} (в ${formatTime(e.time)})</span>
+                `;
+                if (isAlerting) {
+                    listItem.classList.add('alert-active');
+                }
+                eventsList.appendChild(listItem);
+            });
+             if (upcoming.length === 0 && isTimerRunning) {
+                eventsList.innerHTML = '<li>Нет ближайших событий в следующие 10 минут.</li>';
+            } else if (!isTimerRunning && gameTimeInSeconds === 0) {
+                eventsList.innerHTML = '<li>Таймер не запущен.</li>';
+            }
+        }
+
+
+        function mainLoop() {
+            gameTimeInSeconds++;
+            updateTimerDisplay();
+            checkAndTriggerAlerts();
+        }
+
+        startButton.addEventListener('click', () => {
+            if (!isTimerRunning) {
+                // Попытка воспроизвести звук для "разблокировки" аудио на мобильных
+                alertSound.play().then(() => alertSound.pause()).catch(()=>{});
+
+                isTimerRunning = true;
+                eventDefinitions = getInitialEventDefinitions(); // Сброс состояний событий
+                gameTimeInSeconds = 0; // Можно изменить, если нужен старт с другого времени
+                updateTimerDisplay();
+                updateUpcomingEventsDisplay(); // Обновить сразу при старте
+                timerInterval = setInterval(mainLoop, 1000);
+                startButton.textContent = "Pause Timer";
+            } else {
+                isTimerRunning = false;
+                clearInterval(timerInterval);
+                startButton.textContent = "Resume Timer";
+            }
+        });
+
+        resetButton.addEventListener('click', () => {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            gameTimeInSeconds = 0;
+            eventDefinitions = getInitialEventDefinitions(); // Сброс состояний событий
+            updateTimerDisplay();
+            updateUpcomingEventsDisplay();
+            startButton.textContent = "Start Timer";
+            console.log("Timer Reset.");
+        });
+
+        // Инициализация отображения
+        updateTimerDisplay();
+        updateUpcomingEventsDisplay();
+    </script>
+</body>
+</html>
