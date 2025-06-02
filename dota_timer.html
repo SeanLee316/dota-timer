@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dota 2 Таймер Событий v5 (Notifications)</title>
+    <title>Dota 2 Таймер Событий v6 (Adaptive Landscape)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,34 +11,37 @@
             flex-direction: column;
             align-items: center;
             margin: 0;
-            padding: 15px;
+            padding: 10px; /* Уменьшим общий padding для экономии места */
             background-color: #1e1e1e;
             color: #e0e0e0;
             font-size: 14px;
         }
         .main-container {
             display: flex;
+            flex-direction: row; /* По умолчанию панели рядом */
             width: 100%;
-            max-width: 1200px;
-            gap: 20px;
+            max-width: 1300px; /* Немного увеличим для десктопов */
+            gap: 15px; /* Уменьшим gap */
         }
         .left-panel {
-            flex: 2;
+            flex: 2.5; /* Больше места для основного контента */
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-width: 0; /* Для корректного сжатия flex-элементов */
         }
         .right-panel {
-            flex: 1;
+            flex: 1.5; /* Место для лога */
             background-color: #2a2a2a;
-            padding: 15px;
+            padding: 10px 12px;
             border-radius: 8px;
-            max-height: calc(90vh - 60px);
+            max-height: calc(100vh - 40px); /* Адаптивная высота для лога */
             overflow-y: auto;
+            min-width: 0;
         }
         #timerDisplay {
-            font-size: 3.5em;
-            margin-bottom: 10px;
+            font-size: 3.2em; /* Немного уменьшим для общих случаев */
+            margin-bottom: 8px;
             color: #00aeff;
             font-weight: bold;
             text-shadow: 0 0 5px rgba(0,174,255,0.5);
@@ -47,23 +50,26 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
+            width: 100%; /* Чтобы занимало всю ширину левой панели */
         }
         .time-sync-controls, .main-controls, .notification-controls {
             display: flex;
             align-items: center;
             gap: 8px;
             background-color: #2a2a2a;
-            padding: 10px;
+            padding: 8px; /* Уменьшим padding */
             border-radius: 5px;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
+            flex-wrap: wrap;
             justify-content: center;
+            width: calc(100% - 16px); /* С учетом padding */
+            box-sizing: border-box;
         }
         .time-sync-controls input[type="number"] {
-            width: 50px;
-            padding: 8px;
-            font-size: 1em;
+            width: 45px; /* Уменьшим */
+            padding: 7px;
+            font-size: 0.95em;
             text-align: center;
             border: 1px solid #444;
             background-color: #333;
@@ -73,112 +79,136 @@
         }
         .time-sync-controls input[type="number"]::-webkit-outer-spin-button,
         .time-sync-controls input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+            -webkit-appearance: none; margin: 0;
         }
-        .time-sync-controls span {
-            font-size: 1.2em;
-            color: #00aeff;
-        }
+        .time-sync-controls span { font-size: 1.1em; color: #00aeff; }
+
         .controls button, .time-sync-controls button, .notification-controls button {
-            font-size: 1em; /* Unified button size */
-            padding: 8px 15px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #00aeff;
-            color: #ffffff;
+            font-size: 0.95em; /* Немного меньше */
+            padding: 7px 12px;
+            cursor: pointer; border: none; border-radius: 5px;
+            background-color: #00aeff; color: #ffffff;
             transition: background-color 0.2s ease-in-out;
         }
-         .time-sync-controls button {
-            background-color: #5cb85c;
-        }
-        .notification-controls button {
-            background-color: #ffc107; /* Yellow for notifications */
-            color: #1e1e1e;
-        }
-        .controls button:hover {
-            background-color: #007acc;
-        }
-        .time-sync-controls button:hover {
-            background-color: #4cae4c;
-        }
-        .notification-controls button:hover {
-            background-color: #e0a800;
-        }
+        .time-sync-controls button { background-color: #5cb85c; }
+        .notification-controls button { background-color: #ffc107; color: #1e1e1e; }
+        .controls button:hover { background-color: #007acc; }
+        .time-sync-controls button:hover { background-color: #4cae4c; }
+        .notification-controls button:hover { background-color: #e0a800; }
+
         .section-title {
-            text-align: center;
-            color: #00aeff;
-            font-size: 1.5em;
-            margin-bottom: 10px;
+            text-align: center; color: #00aeff;
+            font-size: 1.4em; margin-bottom: 8px;
         }
-        #upcomingEvents ul, #pastEventsLog ul {
-            list-style: none;
-            padding: 0;
+        #upcomingEvents { width:100%; }
+        #upcomingEvents ul, #pastEventsLog ul, #dynamicRecentEventsList ul {
+            list-style: none; padding: 0; margin:0;
         }
-        #upcomingEvents li, #pastEventsLog li {
+        #upcomingEvents li, #pastEventsLog li, #dynamicRecentEventsList li {
             background-color: #333333;
-            padding: 10px 12px;
-            margin-bottom: 8px;
+            padding: 8px 10px; /* Уменьшим padding */
+            margin-bottom: 6px;
             border-radius: 4px;
-            font-size: 1.05em;
-            border-left: 4px solid #00aeff;
+            font-size: 1em; /* Базовый для элементов списка */
+            border-left: 3px solid #00aeff;
         }
-        #pastEventsLog li {
-            border-left-color: #4caf50;
-            font-size: 0.95em;
-        }
+        #pastEventsLog li { border-left-color: #4caf50; font-size: 0.9em; }
         #upcomingEvents li .event-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 4px;
         }
         .event-name { font-weight: bold; }
-        .event-time, .log-time { color: #b0b0b0; }
+        .event-time, .log-time { color: #b0b0b0; font-size:0.95em; }
         .progress-bar-container {
-            height: 8px;
-            background-color: #555;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 5px;
+            height: 7px; background-color: #555; border-radius: 3px;
+            overflow: hidden; margin-top: 4px;
         }
         .progress-bar {
-            height: 100%;
-            background-color: #00aeff;
-            width: 0%;
+            height: 100%; background-color: #00aeff; width: 0%;
             transition: width 0.5s linear;
         }
         .alert-warning { border-left-color: #ffc107 !important; }
         .alert-event-now {
             border-left-color: #dc3545 !important;
-            animation: pulse 1s infinite alternate;
+            animation: pulse 0.8s infinite alternate;
         }
         @keyframes pulse {
-            0% { background-color: rgba(220, 53, 69, 0.5); }
-            100% { background-color: rgba(220, 53, 69, 0.2); }
+            0% { background-color: rgba(220, 53, 69, 0.4); }
+            100% { background-color: rgba(220, 53, 69, 0.15); }
         }
-        .right-panel::-webkit-scrollbar { width: 8px; }
-        .right-panel::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 8px; }
-        .right-panel::-webkit-scrollbar-thumb { background: #555; border-radius: 8px; }
+        .right-panel::-webkit-scrollbar { width: 6px; }
+        .right-panel::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 6px; }
+        .right-panel::-webkit-scrollbar-thumb { background: #555; border-radius: 6px; }
         .right-panel::-webkit-scrollbar-thumb:hover { background: #777; }
 
         .status-messages {
-            font-size: 0.8em;
-            color: #aaa;
-            margin-top: 5px; /* Reduced from 10px */
-            text-align: center;
-            min-height: 1em;
+            font-size: 0.8em; color: #aaa; margin-top: 4px;
+            text-align: center; min-height: 1em; width: 100%;
         }
+        
+        /* Dynamic Recent Events Strip */
+        #dynamicRecentEventsContainer {
+            display: none; /* Скрыт по умолчанию, будет показан через JS/CSS для landscape */
+            width: calc(100% - 16px); /* С учетом padding родителя, если он есть */
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #272729; /* Немного другой фон */
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        #dynamicRecentEventsContainer .section-title { font-size: 1.1em; margin-bottom: 6px; }
+        #dynamicRecentEventsList li {
+            background-color: #38383a;
+            padding: 6px 8px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #ff9800; /* Оранжевый акцент для недавних */
+        }
+        #dynamicRecentEventsList .event-name { font-weight: normal; }
+        #dynamicRecentEventsList .event-meta { font-size: 0.85em; color: #c0c0c0; }
+        #dynamicRecentEventsList .event-timeout { font-size: 0.8em; color: #999; margin-left: 8px;}
 
 
-        @media (max-width: 768px) {
+        /* --- Адаптация --- */
+        /* Портретный режим для телефонов и маленьких планшетов */
+        @media (max-width: 768px) and (orientation: portrait) {
             .main-container { flex-direction: column; }
-            .right-panel { max-height: 40vh; }
-            #timerDisplay { font-size: 2.5em; }
-            .time-sync-controls, .main-controls, .notification-controls { flex-wrap: wrap; justify-content: center; }
-            .time-sync-controls input[type="number"] { width: 45px; }
+            .left-panel, .right-panel { flex-basis: auto; width: 100%; }
+            .right-panel { max-height: 30vh; /* Меньше высота для лога в портрете */ }
+            #dynamicRecentEventsContainer { display: none !important; } /* Не нужен, т.к. лог и так ниже*/
         }
+
+        /* Горизонтальный режим для телефонов (основные изменения здесь) */
+        @media (max-height: 550px) and (orientation: landscape) {
+            body { font-size: 12.5px; padding: 8px; } /* Уменьшаем шрифт и отступы */
+            .main-container { gap: 10px; }
+            .left-panel { flex: 3; } /* Больше места таймеру и контролам */
+            .right-panel { 
+                flex: 2; /* Лог тоже важен */
+                font-size: 0.8em; /* Мелкий шрифт в логе */
+                padding: 8px;
+            }
+            #timerDisplay { font-size: 2.5em; } /* Компактнее таймер */
+            .controls button, .time-sync-controls button, .notification-controls button {
+                font-size: 0.85em; padding: 5px 8px; margin: 3px;
+            }
+            .time-sync-controls input[type="number"] { width: 38px; padding: 5px; font-size: 0.85em;}
+            .section-title { font-size: 1.2em; }
+            #upcomingEvents li { padding: 6px 8px; font-size: 0.95em; }
+            #dynamicRecentEventsContainer { display: block; } /* Показываем блок недавних событий */
+             .right-panel { max-height: calc(100vh - 20px); } /* Лог занимает всю доступную высоту */
+        }
+        
+        /* Планшеты в горизонтальном режиме (могут использовать десктопный вид или иметь свои настройки) */
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+            body { font-size: 13.5px; }
+            .left-panel { flex: 2.2; }
+            .right-panel { flex: 1.8; }
+            #dynamicRecentEventsContainer { display: none; } /* Для планшетов полный лог предпочтительнее */
+        }
+
     </style>
 </head>
 <body>
@@ -203,14 +233,17 @@
              <div id="wakeLockStatus" class="status-messages"></div>
              <div id="notificationStatus" class="status-messages"></div>
 
-
             <div id="upcomingEvents" style="width:100%; max-width:600px;">
                 <h2 class="section-title">Ближайшие события</h2>
                 <ul id="eventsList"></ul>
             </div>
+             <div id="dynamicRecentEventsContainer">
+                <h2 class="section-title">Недавние Активности</h2>
+                <ul id="dynamicRecentEventsList"></ul>
+            </div>
         </div>
         <div class="right-panel">
-            <h2 class="section-title">Лог событий</h2>
+            <h2 class="section-title">Полный Лог</h2>
             <ul id="pastEventsLogList"></ul>
         </div>
     </div>
@@ -221,32 +254,66 @@
     <script>
         const timerDisplay = document.getElementById('timerDisplay');
         const startButton = document.getElementById('startButton');
-        const resetButton = document.getElementById('resetButton');
-        const eventsList = document.getElementById('eventsList');
-        const pastEventsLogList = document.getElementById('pastEventsLogList');
-        const warningSoundPlayer = document.getElementById('warningSoundPlayer');
-        const eventNowSoundPlayer = document.getElementById('eventNowSoundPlayer');
+        // ... (остальные const объявления как в v5) ...
+        const toggleNotificationsButton = document.getElementById('toggleNotificationsButton');
         const wakeLockStatus = document.getElementById('wakeLockStatus');
         const notificationStatus = document.getElementById('notificationStatus');
-        const toggleNotificationsButton = document.getElementById('toggleNotificationsButton');
+        const dynamicRecentEventsList = document.getElementById('dynamicRecentEventsList');
+
 
         const syncMinutesInput = document.getElementById('syncMinutes');
         const syncSecondsInput = document.getElementById('syncSeconds');
         const syncButton = document.getElementById('syncButton');
+        // Инициализация остальных DOM элементов как в предыдущей версии
+        const eventsList = document.getElementById('eventsList');
+        const pastEventsLogList = document.getElementById('pastEventsLogList');
+        const warningSoundPlayer = document.getElementById('warningSoundPlayer');
+        const eventNowSoundPlayer = document.getElementById('eventNowSoundPlayer');
+
 
         const ALERT_OFFSET_SECONDS = 15;
         const PROGRESS_WINDOW_SECONDS = 120;
-        const DOTA_ICON_PATH = 'dota_icon.png'; // ЗАМЕНИТЕ НА ПУТЬ К ВАШЕЙ ИКОНКЕ
+        const DOTA_ICON_PATH = 'dota_icon.png'; 
+        const DYNAMIC_EVENT_LIFETIME_SECONDS = 30; // Сколько секунд событие будет в динамическом списке
 
         let gameTimeInSeconds = 0;
         let timerInterval = null;
         let isTimerRunning = false;
         let eventStates = [];
-        let pastEventsLog = [];
+        let pastEventsLog = []; // Для полного лога
+        let allPotentiallyRecentEvents = []; // Для динамического списка последних событий
         
         let wakeLockSentinel = null; 
         let popUpNotificationsEnabled = false;
 
+        // --- Dynamic Recent Events Functions ---
+        function updateDynamicRecentEventsDisplay() {
+            const now = gameTimeInSeconds;
+            // Фильтруем события: оставляем те, что произошли не более DYNAMIC_EVENT_LIFETIME_SECONDS назад
+            let recentAndValid = allPotentiallyRecentEvents.filter(event => (event.occurrenceTime + DYNAMIC_EVENT_LIFETIME_SECONDS) > now);
+            
+            // Сортируем по времени наступления (самые новые в начале)
+            recentAndValid.sort((a, b) => b.occurrenceTime - a.occurrenceTime);
+
+            // Берем топ 3
+            const displayItems = recentAndValid.slice(0, 3);
+
+            dynamicRecentEventsList.innerHTML = ''; // Очищаем список
+            if (displayItems.length === 0 && document.getElementById('dynamicRecentEventsContainer').style.display === 'block') {
+                 dynamicRecentEventsList.innerHTML = '<li>Нет недавних активностей.</li>';
+            } else {
+                displayItems.forEach(event => {
+                    const listItem = document.createElement('li');
+                    const timeLeftForDisplay = Math.max(0, (event.occurrenceTime + DYNAMIC_EVENT_LIFETIME_SECONDS) - now);
+                    listItem.innerHTML = `
+                        <span class="event-name">${event.name}</span>
+                        <span class="event-meta">(${event.timeText}) <span class="event-timeout">Еще ~${timeLeftForDisplay}с</span></span>
+                    `;
+                    dynamicRecentEventsList.appendChild(listItem);
+                });
+            }
+        }
+        // --- End Dynamic Recent Events Functions ---
 
         // --- Notification Functions ---
         function updateNotificationButtonText() {
@@ -275,9 +342,6 @@
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
                         popUpNotificationsEnabled = true;
-                        console.log('Notification permission granted.');
-                    } else {
-                        console.log('Notification permission denied.');
                     }
                     updateNotificationButtonText();
                 });
@@ -286,81 +350,43 @@
 
         function showBrowserNotification(title, body, tag, requireInteraction = false) {
             if (!popUpNotificationsEnabled || Notification.permission !== 'granted' || !document.hasFocus()) {
-                // Не показываем уведомление, если выключены, не разрешены или вкладка не активна (чтобы не спамить если юзер не смотрит)
-                // Хотя последнее условие (document.hasFocus()) может быть спорным, иногда юзер хочет уведомления и в фоне.
-                // Пока оставим так, чтобы не было навязчиво. Если хотите всегда - уберите !document.hasFocus()
                 return;
             }
-
-            const options = {
-                body: body,
-                icon: DOTA_ICON_PATH, 
-                tag: tag, 
-                renotify: true, 
-                requireInteraction: requireInteraction 
-            };
-
-            try {
-                const notification = new Notification(title, options);
-                // Можно добавить обработчики событий на notification (onclick, onerror, onclose) если нужно
-                // notification.onclick = () => { window.focus(); this.close(); };
-            } catch (e) {
-                console.error("Error showing notification: ", e);
-            }
+            const options = { body, icon: DOTA_ICON_PATH, tag, renotify: true, requireInteraction };
+            try { new Notification(title, options); } catch (e) { console.error("Error showing notification: ", e); }
         }
         // --- End Notification Functions ---
 
-        // --- Screen Wake Lock Functions ---
+        // --- Screen Wake Lock Functions (без изменений от v4) ---
         const requestWakeLock = async () => {
             if ('wakeLock' in navigator) {
                 try {
-                    if (wakeLockSentinel) {
-                        await wakeLockSentinel.release();
-                        wakeLockSentinel = null;
-                    }
+                    if (wakeLockSentinel) { await wakeLockSentinel.release(); wakeLockSentinel = null; }
                     wakeLockSentinel = await navigator.wakeLock.request('screen');
                     wakeLockStatus.textContent = 'Экран не будет гаснуть.';
-                    console.log('Screen Wake Lock active.');
                     wakeLockSentinel.addEventListener('release', () => {
-                        console.log('Screen Wake Lock released (event).');
                         wakeLockStatus.textContent = '';
                         if (event.target === wakeLockSentinel) wakeLockSentinel = null;
                     });
                 } catch (err) {
-                    console.error(`Wake Lock request failed: ${err.name}, ${err.message}`);
-                    wakeLockStatus.textContent = 'Не удалось удержать экран.';
-                    wakeLockSentinel = null;
+                    wakeLockStatus.textContent = 'Не удалось удержать экран.'; wakeLockSentinel = null;
                 }
-            } else {
-                console.warn('Screen Wake Lock API not supported.');
-                wakeLockStatus.textContent = 'API удержания экрана не поддерживается.';
-            }
+            } else { wakeLockStatus.textContent = 'API удержания экрана не поддерживается.'; }
         };
-
         const releaseWakeLock = async () => {
             if (wakeLockSentinel) {
-                try {
-                    await wakeLockSentinel.release();
-                    console.log('Screen Wake Lock released manually.');
-                } catch (err) {
-                    console.error(`Wake Lock release failed: ${err.name}, ${err.message}`);
-                } finally {
-                    wakeLockSentinel = null;
-                    wakeLockStatus.textContent = '';
-                }
+                try { await wakeLockSentinel.release(); } catch (err) { /*ignore*/ }
+                finally { wakeLockSentinel = null; wakeLockStatus.textContent = ''; }
             }
         };
-
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible' && isTimerRunning && !wakeLockSentinel) {
-                console.log('Tab became visible, timer running, re-requesting wake lock.');
                 await requestWakeLock();
             }
         });
         // --- End Screen Wake Lock Functions ---
 
-
-        function getBaseEventDefinitions() {
+        function getBaseEventDefinitions() { // Без изменений
             const defaultWarningSound = "warning_alert.mp3";
             const defaultEventNowSound = "event_now_alert.mp3";
             return [
@@ -376,8 +402,7 @@
                 { name: "Наступление Дня", type: "day_cycle", firstSpawn: 8 * 60, interval: 8 * 60, category: "cycle", warningSound: defaultWarningSound, eventSound: defaultEventNowSound },
             ];
         }
-
-        function initializeEventStates(currentTime = 0) {
+        function initializeEventStates(currentTime = 0) { /* Без изменений от v4 */
             const baseDefinitions = getBaseEventDefinitions();
             eventStates = baseDefinitions.map(def => {
                 const event = { ...def };
@@ -398,8 +423,7 @@
                 return event;
             });
         }
-
-        function rebuildPastEventsLog(currentTime) {
+        function rebuildPastEventsLog(currentTime) { /* Без изменений от v4 */
             pastEventsLog = [];
             const baseDefinitions = getBaseEventDefinitions();
             baseDefinitions.forEach(def => {
@@ -425,23 +449,19 @@
             if (pastEventsLog.length > 50) pastEventsLog = pastEventsLog.slice(0, 50);
             updatePastEventsLogDisplay();
         }
-
-        function formatTime(totalSeconds) {
+        function formatTime(totalSeconds) { /* Без изменений */
             if (isNaN(totalSeconds) || totalSeconds < 0) totalSeconds = 0;
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
-
-        function updateTimerDisplay() {
-            timerDisplay.textContent = formatTime(gameTimeInSeconds);
+        function updateTimerDisplay() { /* Без изменений */
+             timerDisplay.textContent = formatTime(gameTimeInSeconds);
         }
-
-        function playSound(player, eventNameForLog) { // Removed soundSrc as it's fixed in HTML
+        function playSound(player, eventNameForLog) { /* Без изменений */
             player.play().catch(error => console.error(`Audio play failed for ${eventNameForLog}:`, error));
         }
-
-        function updatePastEventsLogDisplay() {
+        function updatePastEventsLogDisplay() { /* Без изменений */
             pastEventsLogList.innerHTML = '';
             pastEventsLog.forEach(logEntry => {
                 const listItem = document.createElement('li');
@@ -453,112 +473,113 @@
             }
         }
 
-        function checkAndTriggerAlerts() {
+        function checkAndTriggerAlerts() { // Добавлено добавление в allPotentiallyRecentEvents
             eventStates.forEach(event => {
-                let eventTime, eventDisplayName;
+                let eventTime, eventBaseName, uniqueEventIdPart; // eventDisplayName renamed to eventBaseName
 
                 if (event.isOneTime) {
-                    if (event.alertedEvent) return; // Уже свершилось и обработано
+                    if (event.alertedEvent) return;
                     eventTime = event.spawnTime;
-                    eventDisplayName = event.name;
-
-                    if (!event.alertedWarning && gameTimeInSeconds >= eventTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < eventTime) {
-                        playSound(warningSoundPlayer, eventDisplayName + " Warning Sound");
-                        showBrowserNotification(`Предупреждение: ${eventDisplayName}`, `Через ${ALERT_OFFSET_SECONDS} сек. (в ${formatTime(eventTime)})`, `d2timer-${event.type}-${eventTime}`, false);
-                        event.alertedWarning = true;
-                    }
-                    if (!event.alertedEvent && gameTimeInSeconds >= eventTime) {
-                        playSound(eventNowSoundPlayer, eventDisplayName + " Event Now Sound");
-                        showBrowserNotification(`${eventDisplayName} СЕЙЧАС!`, `Событие началось в ${formatTime(eventTime)}`, `d2timer-${event.type}-${eventTime}`, true);
-                        if (!pastEventsLog.find(e => e.rawTime === eventTime && e.name === eventDisplayName)) {
-                             rebuildPastEventsLog(gameTimeInSeconds); 
-                        }
-                        event.alertedEvent = true;
-                    }
-                } else if (event.spawnTimes) { // Fixed list like Water Runes
+                    eventBaseName = event.name;
+                    uniqueEventIdPart = eventTime;
+                } else if (event.spawnTimes) {
+                    // Обрабатываем каждый спавн отдельно
                     event.spawnTimes.forEach((spawnTime, index) => {
                         if (event.alertedEvent[index]) return;
                         eventTime = spawnTime;
-                        eventDisplayName = `${event.name} (${formatTime(eventTime)})`;
+                        eventBaseName = event.name; // Используем базовое имя
+                        uniqueEventIdPart = spawnTime;
 
                         if (!event.alertedWarning[index] && gameTimeInSeconds >= eventTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < eventTime) {
-                            playSound(warningSoundPlayer, eventDisplayName + " Warning Sound");
-                            showBrowserNotification(`Предупреждение: ${event.name}`, `Через ${ALERT_OFFSET_SECONDS} сек. (в ${formatTime(eventTime)})`, `d2timer-${event.type}-${eventTime}`, false);
+                            playSound(warningSoundPlayer, `${eventBaseName} @${formatTime(eventTime)} Warning`);
+                            showBrowserNotification(`Предупреждение: ${eventBaseName}`, `Через ${ALERT_OFFSET_SECONDS} сек. (в ${formatTime(eventTime)})`, `d2timer-${event.type}-${uniqueEventIdPart}-warn`, false);
                             event.alertedWarning[index] = true;
                         }
                         if (!event.alertedEvent[index] && gameTimeInSeconds >= eventTime) {
-                            playSound(eventNowSoundPlayer, eventDisplayName + " Event Now Sound");
-                            showBrowserNotification(`${event.name} СЕЙЧАС!`, `Событие началось в ${formatTime(eventTime)}`, `d2timer-${event.type}-${eventTime}`, true);
-                             if (!pastEventsLog.find(e => e.rawTime === eventTime && e.name.includes(event.name))) { // check if this specific instance is logged
-                                rebuildPastEventsLog(gameTimeInSeconds);
+                            playSound(eventNowSoundPlayer, `${eventBaseName} @${formatTime(eventTime)} Event Now`);
+                            showBrowserNotification(`${eventBaseName} СЕЙЧАС!`, `Событие началось в ${formatTime(eventTime)}`, `d2timer-${event.type}-${uniqueEventIdPart}-now`, true);
+                            
+                            const logName = `${eventBaseName} (${formatTime(eventTime)})`;
+                            if (!pastEventsLog.find(e => e.rawTime === eventTime && e.name === logName)) {
+                                 rebuildPastEventsLog(gameTimeInSeconds);
                             }
+                            // Add to dynamic recent events
+                            const eventId = `dyn-${event.type}-${uniqueEventIdPart}`;
+                            if (!allPotentiallyRecentEvents.find(e => e.id === eventId)) {
+                                allPotentiallyRecentEvents.unshift({ id: eventId, name: eventBaseName, timeText: formatTime(eventTime), occurrenceTime: eventTime });
+                            }
+
                             event.alertedEvent[index] = true;
                         }
                     });
+                    return; // Завершаем обработку для этого типа события, т.к. внутренний цикл все сделал
                 } else { // Repeating
                     eventTime = event.nextSpawnTime;
-                    eventDisplayName = event.name;
-
-                    if (!event.alertedWarning && gameTimeInSeconds >= eventTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < eventTime) {
-                        playSound(warningSoundPlayer, eventDisplayName + " Warning Sound");
-                        showBrowserNotification(`Предупреждение: ${eventDisplayName}`, `Через ${ALERT_OFFSET_SECONDS} сек. (в ${formatTime(eventTime)})`, `d2timer-${event.type}-${eventTime}`, false);
-                        event.alertedWarning = true;
-                    }
-                    
-                    if (gameTimeInSeconds >= eventTime) { // Check if current time passed the scheduled event time
-                        if (!event.alertedEvent) { 
-                           playSound(eventNowSoundPlayer, eventDisplayName + " Event Now Sound");
-                           showBrowserNotification(`${eventDisplayName} СЕЙЧАС!`, `Событие началось в ${formatTime(eventTime)}`, `d2timer-${event.type}-${eventTime}`, true);
-                            if (!pastEventsLog.find(e => e.rawTime === eventTime && e.name === eventDisplayName)) {
-                                rebuildPastEventsLog(gameTimeInSeconds); 
-                            }
-                           event.alertedEvent = true; 
+                    eventBaseName = event.name;
+                    uniqueEventIdPart = eventTime; // For repeating, nextSpawnTime is the unique part for this instance
+                }
+                // Общая логика для isOneTime и repeating (кроме spawnTimes)
+                if (!event.alertedWarning && gameTimeInSeconds >= eventTime - ALERT_OFFSET_SECONDS && gameTimeInSeconds < eventTime) {
+                    playSound(warningSoundPlayer, `${eventBaseName} Warning`);
+                    showBrowserNotification(`Предупреждение: ${eventBaseName}`, `Через ${ALERT_OFFSET_SECONDS} сек. (в ${formatTime(eventTime)})`, `d2timer-${event.type}-${uniqueEventIdPart}-warn`, false);
+                    event.alertedWarning = true;
+                }
+                if (gameTimeInSeconds >= eventTime) { // Событие наступило или прошло
+                    if (!event.alertedEvent) { 
+                       playSound(eventNowSoundPlayer, `${eventBaseName} Event Now`);
+                       showBrowserNotification(`${eventBaseName} СЕЙЧАС!`, `Событие началось в ${formatTime(eventTime)}`, `d2timer-${event.type}-${uniqueEventIdPart}-now`, true);
+                        if (!pastEventsLog.find(e => e.rawTime === eventTime && e.name === eventBaseName)) {
+                            rebuildPastEventsLog(gameTimeInSeconds); 
                         }
-                        
-                        // Correctly advance to the *next* future spawn time
+                        // Add to dynamic recent events
+                        const eventId = `dyn-${event.type}-${uniqueEventIdPart}`;
+                         if (!allPotentiallyRecentEvents.find(e => e.id === eventId)) {
+                            allPotentiallyRecentEvents.unshift({ id: eventId, name: eventBaseName, timeText: formatTime(eventTime), occurrenceTime: eventTime });
+                        }
+                       event.alertedEvent = true; 
+                    }
+                    if (!event.isOneTime && !event.spawnTimes) { // Только для повторяющихся
                         const previousNextSpawnTime = event.nextSpawnTime;
                         while(event.nextSpawnTime <= gameTimeInSeconds) { 
                             event.nextSpawnTime += event.interval;
                         }
-                        // Reset flags only if we actually advanced to a new spawn time slot
                         if (event.nextSpawnTime > previousNextSpawnTime) {
                              event.alertedWarning = false;
-                             event.alertedEvent = false; // Reset for the *new* future spawn
-                        } else if (event.alertedEvent && gameTimeInSeconds < event.nextSpawnTime) {
-                            // This case means the event happened, was alerted, but gameTime hasn't reached the *new* nextSpawnTime's interval yet.
-                            // We should not reset alertedWarning/Event yet for the *current* eventTime.
-                            // The flags `alertedWarning` and `alertedEvent` should pertain to `event.nextSpawnTime`.
-                            // The advancement logic seems correct above.
+                             event.alertedEvent = false;
                         }
                     }
                 }
             });
+            // Ограничение общего списка потенциально недавних событий
+            if (allPotentiallyRecentEvents.length > 20) { // Держим буфер побольше, чем 3
+                allPotentiallyRecentEvents = allPotentiallyRecentEvents.slice(0, 20);
+            }
             updateUpcomingEventsDisplay();
+            updateDynamicRecentEventsDisplay(); // Обновляем динамический список
         }
-
-        function updateUpcomingEventsDisplay() {
+        
+        function updateUpcomingEventsDisplay() { /* почти без изменений, но проверим логику с alertedEvent */
             const upcoming = [];
             const displayLimitFutureSeconds = gameTimeInSeconds + 15 * 60;
-
             eventStates.forEach(event => {
-                if (event.isOneTime && !event.alertedEvent && gameTimeInSeconds < event.spawnTime) {
-                    if (event.spawnTime <= displayLimitFutureSeconds) {
+                if (event.isOneTime && !event.alertedEvent) { // Убрали gameTimeInSeconds < event.spawnTime, т.к. alertedEvent это покрывает
+                    if (event.spawnTime <= displayLimitFutureSeconds && event.spawnTime > gameTimeInSeconds) { // Добавили spawnTime > gameTimeInSeconds
                         upcoming.push({ name: event.name, time: event.spawnTime, eventObj: event });
                     }
                 } else if (event.spawnTimes) {
                      event.spawnTimes.forEach((spawnTime, index) => {
-                        if (!event.alertedEvent[index] && gameTimeInSeconds < spawnTime && spawnTime <= displayLimitFutureSeconds) {
+                        if (!event.alertedEvent[index] && spawnTime <= displayLimitFutureSeconds && spawnTime > gameTimeInSeconds) {
                              upcoming.push({ name: `${event.name}`, time: spawnTime, eventObj: event, spawnIndex: index });
                         }
                     });
-                } else if (!event.isOneTime && !event.spawnTimes) {
-                    if (event.nextSpawnTime <= displayLimitFutureSeconds && gameTimeInSeconds < event.nextSpawnTime && !event.alertedEvent) { 
-                        // Added !event.alertedEvent for repeating to ensure we don't show an event that just triggered and is pending flag reset for next interval
+                } else if (!event.isOneTime && !event.spawnTimes) { // Repeating
+                    // Для повторяющихся, alertedEvent сбрасывается когда nextSpawnTime обновляется.
+                    // Мы хотим видеть текущий nextSpawnTime если он еще не "случился" (т.е. gameTimeInSeconds < event.nextSpawnTime)
+                    if (event.nextSpawnTime <= displayLimitFutureSeconds && gameTimeInSeconds < event.nextSpawnTime) {
                         upcoming.push({ name: event.name, time: event.nextSpawnTime, eventObj: event });
                     }
                 }
             });
-
             upcoming.sort((a, b) => a.time - b.time);
             eventsList.innerHTML = '';
             const maxEventsToShow = 7;
@@ -569,54 +590,33 @@
                 if (timeToSpawn <= PROGRESS_WINDOW_SECONDS && timeToSpawn > 0) {
                     const elapsedInWindow = PROGRESS_WINDOW_SECONDS - timeToSpawn;
                     const progressPercent = Math.min(100, Math.max(0, (elapsedInWindow / PROGRESS_WINDOW_SECONDS) * 100));
-                    progressBarHtml = `
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: ${progressPercent}%;"></div>
-                        </div>`;
+                    progressBarHtml = `<div class="progress-bar-container"><div class="progress-bar" style="width: ${progressPercent}%;"></div></div>`;
                 }
-                listItem.innerHTML = `
-                    <div class="event-details">
-                        <span class="event-name">${e.name}</span>
-                        <span class="event-time">через ${formatTime(timeToSpawn)} (в ${formatTime(e.time)})</span>
-                    </div>
-                    ${progressBarHtml}
-                `;
+                listItem.innerHTML = `<div class="event-details"><span class="event-name">${e.name}</span><span class="event-time">через ${formatTime(timeToSpawn)} (в ${formatTime(e.time)})</span></div>${progressBarHtml}`;
                 let isWarningActive = false;
                 if (e.eventObj.isOneTime) isWarningActive = e.eventObj.alertedWarning;
                 else if (e.eventObj.spawnTimes) isWarningActive = e.eventObj.alertedWarning[e.spawnIndex];
                 else isWarningActive = e.eventObj.alertedWarning;
-
-                if (timeToSpawn <= 0 && timeToSpawn > -ALERT_OFFSET_SECONDS) { // Event is NOW
-                    listItem.classList.add('alert-event-now');
-                } else if (isWarningActive && timeToSpawn > 0 && timeToSpawn <= ALERT_OFFSET_SECONDS) { // Warning active
-                     listItem.classList.add('alert-warning');
-                }
+                if (timeToSpawn <= 0 && timeToSpawn > -ALERT_OFFSET_SECONDS) listItem.classList.add('alert-event-now');
+                else if (isWarningActive && timeToSpawn > 0 && timeToSpawn <= ALERT_OFFSET_SECONDS) listItem.classList.add('alert-warning');
                 eventsList.appendChild(listItem);
             });
-             if (upcoming.length === 0 && isTimerRunning) {
-                eventsList.innerHTML = '<li>Нет ожидаемых событий в ближайшее время.</li>';
-            } else if (!isTimerRunning && upcoming.length === 0) {
-                 eventsList.innerHTML = '<li>Нет ожидаемых событий. Запустите или синхронизируйте таймер.</li>';
-            } else if (!isTimerRunning && gameTimeInSeconds === 0) {
-                eventsList.innerHTML = '<li>Таймер не запущен.</li>';
-            }
+            if (upcoming.length === 0 && isTimerRunning) eventsList.innerHTML = '<li>Нет ожидаемых событий в ближайшее время.</li>';
+            else if (!isTimerRunning && upcoming.length === 0) eventsList.innerHTML = '<li>Нет ожидаемых событий. Запустите или синхронизируйте таймер.</li>';
+            else if (!isTimerRunning && gameTimeInSeconds === 0) eventsList.innerHTML = '<li>Таймер не запущен.</li>';
         }
 
-        function mainLoop() {
+        function mainLoop() { /* почти без изменений, но вызываем updateDynamicRecentEventsDisplay */
             if (!isTimerRunning) return;
             gameTimeInSeconds++;
             updateTimerDisplay();
-            checkAndTriggerAlerts();
+            checkAndTriggerAlerts(); // Это также вызовет updateDynamicRecentEventsDisplay внутри себя
         }
-
-        function attemptInitialSoundUnlock() {
-            const promise1 = warningSoundPlayer.play();
-            if (promise1 !== undefined) promise1.then(_ => warningSoundPlayer.pause()).catch(error => {});
-            const promise2 = eventNowSoundPlayer.play();
-            if (promise2 !== undefined) promise2.then(_ => eventNowSoundPlayer.pause()).catch(error => {});
+        function attemptInitialSoundUnlock() { /* Без изменений */
+            const p1 = warningSoundPlayer.play(); if (p1) p1.then(_=>warningSoundPlayer.pause()).catch(()=>{});
+            const p2 = eventNowSoundPlayer.play(); if (p2) p2.then(_=>eventNowSoundPlayer.pause()).catch(()=>{});
         }
-
-        startButton.addEventListener('click', async () => { 
+        startButton.addEventListener('click', async () => { /* Без изменений */ 
             attemptInitialSoundUnlock();
             if (!isTimerRunning) {
                 isTimerRunning = true;
@@ -624,6 +624,7 @@
                  if (gameTimeInSeconds === 0 && pastEventsLog.length === 0) { 
                     initializeEventStates(0);
                     rebuildPastEventsLog(0);
+                    allPotentiallyRecentEvents = []; // Очищаем при полном старте
                 }
                 updateAllDisplays();
                 timerInterval = setInterval(mainLoop, 1000);
@@ -635,59 +636,77 @@
                 startButton.textContent = "Resume Timer";
             }
         });
-
-        resetButton.addEventListener('click', async () => { 
+        resetButton.addEventListener('click', async () => { /* Добавлена очистка allPotentiallyRecentEvents */
             attemptInitialSoundUnlock();
             isTimerRunning = false;
             await releaseWakeLock(); 
             clearInterval(timerInterval);
             gameTimeInSeconds = 0;
-            syncMinutesInput.value = '';
-            syncSecondsInput.value = '';
+            syncMinutesInput.value = ''; syncSecondsInput.value = '';
             initializeEventStates(0);
             rebuildPastEventsLog(0);
+            allPotentiallyRecentEvents = []; // Очищаем при сбросе
             updateAllDisplays();
             startButton.textContent = "Start Timer";
-            console.log("Timer Reset.");
         });
-
-        syncButton.addEventListener('click', async () => { 
+        syncButton.addEventListener('click', async () => { /* Добавлена очистка allPotentiallyRecentEvents */
             attemptInitialSoundUnlock();
             let wasTimerRunningBeforeSyncOp = isTimerRunning; 
-            if (isTimerRunning) {
-                isTimerRunning = false;
-                clearInterval(timerInterval);
-            }
+            if (isTimerRunning) { isTimerRunning = false; clearInterval(timerInterval); }
             const minutes = parseInt(syncMinutesInput.value) || 0;
             const seconds = parseInt(syncSecondsInput.value) || 0;
-
             if (minutes < 0 || seconds < 0 || seconds > 59) {
-                alert("Пожалуйста, введите корректное время (минуты >= 0, секунды 0-59).");
-                if (wasTimerRunningBeforeSyncOp) { 
-                    isTimerRunning = true;
-                    timerInterval = setInterval(mainLoop, 1000);
-                } 
+                alert("Пожалуйста, введите корректное время.");
+                if (wasTimerRunningBeforeSyncOp) { isTimerRunning = true; timerInterval = setInterval(mainLoop, 1000); } 
                 return;
             }
-            await releaseWakeLock(); // Снимаем блокировку при синхронизации, будет запрошена при Resume
+            await releaseWakeLock(); 
             gameTimeInSeconds = (minutes * 60) + seconds;
             initializeEventStates(gameTimeInSeconds);
             rebuildPastEventsLog(gameTimeInSeconds);
+            // Перестроить allPotentiallyRecentEvents на основе нового времени
+            allPotentiallyRecentEvents = [];
+            const baseDefs = getBaseEventDefinitions();
+            baseDefs.forEach(def => {
+                if (def.isOneTime) {
+                    if (def.spawnTime <= gameTimeInSeconds && def.spawnTime + DYNAMIC_EVENT_LIFETIME_SECONDS > gameTimeInSeconds) {
+                         allPotentiallyRecentEvents.unshift({ id: `dyn-${def.type}-${def.spawnTime}`, name: def.name, timeText: formatTime(def.spawnTime), occurrenceTime: def.spawnTime });
+                    }
+                } else if (def.spawnTimes) {
+                    def.spawnTimes.forEach(st => {
+                        if (st <= gameTimeInSeconds && st + DYNAMIC_EVENT_LIFETIME_SECONDS > gameTimeInSeconds) {
+                             allPotentiallyRecentEvents.unshift({ id: `dyn-${def.type}-${st}`, name: def.name, timeText: formatTime(st), occurrenceTime: st });
+                        }
+                    });
+                } else { // Repeating
+                    let ts = def.firstSpawn;
+                    while (ts <= gameTimeInSeconds) {
+                        if (ts + DYNAMIC_EVENT_LIFETIME_SECONDS > gameTimeInSeconds) {
+                             allPotentiallyRecentEvents.unshift({ id: `dyn-${def.type}-${ts}`, name: def.name, timeText: formatTime(ts), occurrenceTime: ts });
+                        }
+                        ts += def.interval;
+                    }
+                }
+            });
+            allPotentiallyRecentEvents.sort((a,b) => b.occurrenceTime - a.occurrenceTime);
+            if(allPotentiallyRecentEvents.length > 20) allPotentiallyRecentEvents.slice(0,20);
+
+
             updateAllDisplays();
             startButton.textContent = "Resume Timer"; 
-            console.log(`Timer Synced to: ${formatTime(gameTimeInSeconds)}`);
         });
         
         function updateAllDisplays() {
             updateTimerDisplay();
             updateUpcomingEventsDisplay();
             updatePastEventsLogDisplay();
+            updateDynamicRecentEventsDisplay(); // Добавлено обновление динамического списка
         }
 
         // Initial setup
         initializeEventStates(0);
         updateAllDisplays();
-        updateNotificationButtonText(); // Initialize button text and status based on current permission
+        updateNotificationButtonText();
     </script>
 </body>
 </html>
