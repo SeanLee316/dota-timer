@@ -3,14 +3,13 @@
 const CACHE_NAME = 'dota2-timer-cache-v1.3'; // Обновите версию при изменениях в файлах для кеширования!
 const DYNAMIC_CACHE_NAME = 'dota2-timer-dynamic-v1.3';
 
-// Замените 'dota_timer_final.html' на фактическое имя вашего основного HTML файла.
-// Если ваш HTML-файл называется index.html и лежит в корне рядом с sw.js, то './' будет достаточно.
-const MAIN_HTML_FILE = './dota_timer_final.html'; // УКАЖИТЕ ПРАВИЛЬНОЕ ИМЯ ФАЙЛА!
+// Теперь главный HTML файл - index.html
+const MAIN_HTML_FILE = './index.html'; 
 
 const STATIC_ASSETS = [
-    './', // Кеширует корень (обычно index.html или то, что отдает сервер для '/')
-    MAIN_HTML_FILE,
-    './manifest.json', // Добавляем манифест в кеш
+    './', // Кеширует корень (теперь это будет index.html)
+    MAIN_HTML_FILE, // Явно указываем index.html для надежности
+    './manifest.json', 
     './dota_icon.png', 
     './warning_alert.mp3',
     './event_now_alert.mp3'
@@ -26,7 +25,6 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('[SW] Precaching App Shell:', STATIC_ASSETS);
-                // Убираем дублирование, если MAIN_HTML_FILE уже есть в STATIC_ASSETS через './'
                 const uniqueAssetsToCache = [...new Set(STATIC_ASSETS.filter(url => url))];
                 return cache.addAll(uniqueAssetsToCache);
             })
@@ -57,7 +55,15 @@ self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
     // Стратегия: Cache first, then Network для HTML и статических ассетов
-    if (event.request.mode === 'navigate' || STATIC_ASSETS.some(asset => url.pathname.endsWith(asset.substring(1)))) {
+    // Проверяем, соответствует ли запрос одному из статических ассетов или является навигационным запросом
+    const isStaticAsset = STATIC_ASSETS.some(asset => {
+        // Для './' asset, проверяем, является ли это корневым путем
+        if (asset === './') return url.pathname === '/' || url.pathname === '/index.html';
+        // Для других ассетов, проверяем окончание пути
+        return url.pathname.endsWith(asset.substring(1)); // Убираем начальную точку из asset
+    });
+
+    if (event.request.mode === 'navigate' || isStaticAsset) {
         event.respondWith(
             caches.match(event.request)
                 .then(cachedResponse => {
@@ -75,14 +81,14 @@ self.addEventListener('fetch', event => {
                     }).catch(err => {
                         console.warn(`[SW] Network request for ${event.request.url} failed, trying fallback. Error: ${err}`);
                         // Если это HTML и он не найден в сети, отдаем закешированный главный HTML как fallback
-                        if (event.request.mode === 'navigate' || url.pathname.endsWith('.html')) {
+                        if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
                             return caches.match(MAIN_HTML_FILE);
                         }
                     });
                 })
         );
     } else {
-        // Для других запросов (например, API, если бы они были): Network first, then Cache
+        // Для других запросов: Network first, then Cache
         event.respondWith(
             fetch(event.request)
                 .then(response => {
